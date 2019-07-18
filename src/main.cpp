@@ -37,21 +37,14 @@ using namespace std;
 
 const unsigned short BUFF_SIZE = 200;
 
-void print_buf(char (&read_buf)[200], int numIterations, int numReads){
+void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Print iterations: "<< numIterations<<endl;
 
 	for (int i = 0; i < BUFF_SIZE; ++i)
 		cout <<  hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[i])) << dec << " ";
 
 	cout <<  endl<<endl;
-
 }
-
-// void convert_string(string buffer){
-//     char cstr[BUFF_SIZE + 1];
-//     strcpy(cstr,buffer.c_str());
-//     print_buf( cstr,1,1);
-// }
 
 void read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port, int & numIterations) {
 		/* reading above 255 is tricky, we need to read BUFFSIZE bytes exactly, so this ensures it */
@@ -59,22 +52,27 @@ void read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port, int & numIterati
 		int remaining   = sizeof(read_buf);
 		numIterations=0;
 		while (remaining > 0){
-    	ssize_t readChars = read(serial_port, &read_buf[totalNeeded - remaining], remaining);
-			if (!(readChars > 0)){
-				return;
-			}
-			else{
+			try{
+				ssize_t readChars = read(serial_port, &read_buf[totalNeeded - remaining], remaining);
+				if (!(readChars > 0)){
+					return;
+				}
+				else{
 					remaining -= readChars;
 					numIterations++;
-   	 		}
+				}
+			} catch(ssize_t readChars){
+				cout<<"Read exception caught"<<endl;
+			}	
 		}
 }
 
-void usb_port(int & serial_port) {
+int usb_port(int & serial_port) {
 	serial_port = open("/dev/ttyUSB0", O_RDWR );
 	//Check for errors
 	if (serial_port < 0) {
-	    printf("Error %i from open: %s\n", errno, strerror(errno));		
+	    printf("Error %i from open: %s\n", errno, strerror(errno));	
+		return(serial_port);	
 	}
 	else{
 		// Create new termios struc, we call it 'tty' for convention
@@ -132,7 +130,7 @@ void usb_port(int & serial_port) {
 			throw std::runtime_error("Serial port with file descriptor " +
 				std::to_string(serial_port) + " is already locked by another process.");
 		}
-	
+		return(serial_port);
 	}
 }
 
@@ -155,8 +153,8 @@ void sendSocket(int & new_socket, char const * data, const unsigned short DATA_S
 	}
 }
 
-int socket(){
-	int server_fd, new_socket; 
+int socket(int & server_fd){
+	int new_socket; 
     struct sockaddr_in address; 
     int opt = 1; 
     int addrlen = sizeof(address); 
@@ -179,7 +177,7 @@ int socket(){
 	
 	// set a timeout for client to connect / read from 
 	struct timeval tv;
-	tv.tv_sec = 20;
+	tv.tv_sec = 10;
 	tv.tv_usec = 0;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv)){
 		
@@ -200,20 +198,59 @@ int socket(){
         cout<<"*** listen ***"<<endl; 
         exit(EXIT_FAILURE); 
     } 
+	// socket blocks program on accept() until either a client accepts or timeout occurs
     int error_num2 = new_socket = accept(server_fd, (struct sockaddr *)&address,   (socklen_t*)&addrlen);
     if(error_num2 < 0){ 
-        cout<<"*** No Client Accepted Connection ***"<<endl; 
-        exit(EXIT_FAILURE); 
+        cout<<"*** No Client Accepted Connection *** - "<<errno<<endl; 
+		return -1;
     } 
 
 	return new_socket;
+}
 
+string createJsonString(char  (&read_buf)[BUFF_SIZE]){
+	string machines[8] = {"Air Compressor", "Air Dryer", "Tank 1", "Tank 1_3", "Tank 2_3", "Tank 3_3", "Generator", "Nitrogen Tank"}; 
+	int temp, pressure;
+	vector<Json::Value> arrayVehicles;
+	Json::Value root;
+	Json::Value myJson = root["machines"];
+
+	for(int i = 0; i < 8; i++)
+	{
+		stringstream ss;
+		ss.clear();
+		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)]));
+		ss >> temp;
+		ss.clear();
+		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)+1]));
+		ss >> pressure;
+		
+		myJson["id"] = Json::Value("machine_"+to_string(i));
+		string machineName = machines[i]; 
+		myJson["name"] = Json::Value(machineName);
+		myJson["temp"] = Json::Value::Int(temp);
+		myJson["pressure"] = Json::Value::Int(pressure);
+
+		arrayVehicles.push_back(myJson);
+	}
+
+	Json::FastWriter fastWriter;
+	string output = "{ \"machines\":  [ ";
+	for(int i=0; i<8; i++){
+		if(i != 0)
+			output += ",";
+		output += fastWriter.write(arrayVehicles[i]);
+	}
+	output += " ] }";
+	
+	return(output);
 }
 
 int main() {
 
 	//initialize socket 
-	int new_socket = socket();
+	int server_fd;
+	int new_socket = socket(server_fd);
  	
 	// Allocate memory for read buffer, set size according to your needs
 	int serial_port;
@@ -225,63 +262,61 @@ int main() {
 
 	//numReads: num of reads from port
 	//n: num of iterations to read exact num of bits | 0 means nothing read this iteration, > 0 means something has been read 
-    int numReads = 0, numIterations = 0;
-    while(true){
+    int numReads = 0, numIterations = 0, missed_reads = 0;
 
-	    read_bytes(read_buf, serial_port, numIterations);
-		if(numIterations > 0){ //if something was read, do stuff with this data
+    while(true){
+		
+		//read_bytes() might miss once or twice every once in a while, if it misses more than 10 times in a row,
+		//    the port might have been disconnected, so we will check for reconnection
+		if(missed_reads > 10){ //if the usb port been disconnected
+			if(serial_port > 0){
+				close(serial_port);
+			}
+			
+			if(usb_port(serial_port) > 0){
+				numReads = 0;
+				cout<<"Successfully reconnecting to Port"<<endl;
+				missed_reads = 0;
+			}else{
+				cout<<"Attempting to reconnect to Port in 5 seconds..."<<endl;
+				usleep(5000000);
+			}
+				
+		}else{ // if usb not disconnected, read
+			read_bytes(read_buf, serial_port, numIterations);
+		}
+	    
+		if(numIterations > 0){ //if something was read from USB, do stuff with this data
+			missed_reads = 0;
+
 			print_buf(read_buf, numIterations, numReads);
 
-			string machines[8] = {"Air Compressor", "Air Dryer", "Tank 1", "Tank 1_3", "Tank 2_3", "Tank 3_3", "Random Box", "Nitrogen Tank"}; 
-			int temp, pressure;
-			vector<Json::Value> arrayVehicles;
-			Json::Value root;
-			Json::Value myJson = root["machines"];
-			for(int i = 0; i < 8; i++)
-			{
-				stringstream ss;
-				ss.clear();
-				ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)]));
-				ss >> temp;
-				ss.clear();
-				ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)+1]));
-				ss >> pressure;
-				
-				myJson["id"] = Json::Value::Int(i);
-				string machineName = machines[i]; 
-				myJson["name"] = Json::Value(machineName);
-				myJson["temp"] = Json::Value::Int(temp);
-				myJson["pressure"] = Json::Value::Int(pressure);
+			const string tmp2 = createJsonString(read_buf);
 
-				arrayVehicles.push_back(myJson);
-			}
-
-			Json::FastWriter fastWriter;
-			std::string output = "{ \"machines\":  [ ";
-			for(int i=0; i<8; i++){
-				if(i != 0)
-				 output += ",";
-				output += fastWriter.write(arrayVehicles[i]);
-			}
-			output += " ] }";
-
-
-			const string tmp2 = output;
+			//convert string to char array
 			char const * stringified_json = tmp2.c_str();
 			int size = strlen(stringified_json);
-			cout<<size<<endl;
-
 
 			//make sure client is still connected to socket
 			int stillAlive = readSocket(new_socket);
 			if(stillAlive > 0){
 				sendSocket(new_socket, stringified_json, size);	
 			}else{
-				//create 'new' socket (should resuse old one) and wait for client to reconnect
+				//create 'new' socket (should resuse old one) and wait for client to reconnect until timeout
 				cout<<"Client disconnected; Waiting for reconnect."<<endl;
-				new_socket = socket();
+	
+				if(new_socket != -1)
+					close(new_socket);
+				if(server_fd != -1)
+					close(server_fd);
+
+				server_fd = -1;
+				new_socket = socket(server_fd);
+				
 			}
-		}   
+		}else{
+			missed_reads++;			
+		}
         numReads++;
     }
 	//Clean up
