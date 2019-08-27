@@ -29,6 +29,8 @@
 
 // Socket header
 #include <netinet/in.h> 
+
+#include <mysql/mysql.h>
  
 #define PORT 8081 
 
@@ -134,6 +136,69 @@ int usb_port(int & serial_port) {
 	}
 }
 
+void mysqlConnect(MYSQL & mysql){
+
+	//Connect to MySQL server
+	mysql_init(&mysql);
+	mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"nitrogen");
+	printf("MYSQL INFO: %s\n", mysql_get_client_info());
+	if (!mysql_real_connect(&mysql,"127.0.0.1","nitro","n1tr0","db_nitro",0,NULL,0))
+	{
+		fprintf(stderr, "Failed to connect to database: Error: %s\n",
+			mysql_error(&mysql));
+		return;
+	}
+	cout<<"Successfully Connected to MYSQL"<<endl;
+	return;
+	
+}
+
+vector<string> mysqlQuery(MYSQL & mysql, const char * field_name){
+	vector<string> machines;
+	unsigned int num_fields;
+	MYSQL_ROW row;
+
+	if(mysql_query(&mysql, "SELECT * from machines")){
+		//error
+		cout<<"MySQL Error"<<endl;
+		return machines;
+	}else{
+		MYSQL_RES *result  = mysql_store_result(&mysql);
+		if(result){
+			//Find the index of our machine table name field 
+			num_fields = mysql_num_fields(result); 
+			MYSQL_FIELD *fields;
+			unsigned int field_index;
+			fields = mysql_fetch_fields(result);
+			for(unsigned int i = 0; i < num_fields; i++){
+				if(!(strcmp(fields[i].name , field_name))){
+					field_index = i;
+				}
+			}			
+	
+			//Search through rows
+			while ((row = mysql_fetch_row(result)))	{
+				for(unsigned int p = 0; p < num_fields; p++) {	
+					//if field matches our field_name from above, record that cell
+					if(p == field_index){
+						string t = row[p];//(1, row[p]);
+						machines.push_back(t);
+					}
+				}
+			}
+			mysql_free_result(result);
+			return machines;
+		}else{
+			fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
+			return machines;
+		}
+	}
+}
+
+void mysqlCloseConnect(MYSQL &mysql){
+	mysql_close(&mysql);
+}
+
 int readSocket( int & new_socket ){
 	int valread;
 	char buffer[1024] = {0}; 
@@ -208,8 +273,8 @@ int socket(int & server_fd){
 	return new_socket;
 }
 
-string createJsonString(char  (&read_buf)[BUFF_SIZE]){
-	string machines[8] = {"Air Compressor", "Air Dryer", "Tank 1", "Tank 1_3", "Tank 2_3", "Tank 3_3", "Generator", "Nitrogen Tank"}; 
+string createJsonString(char  (&read_buf)[BUFF_SIZE], const vector<string> &machines){
+	//string machines[8] = {"Air Compressor", "Air Dryer", "Tank 1", "Tank 1_3", "Tank 2_3", "Tank 3_3", "Generator", "Nitrogen Tank"}; 
 	int temp, pressure;
 	vector<Json::Value> arrayVehicles;
 	Json::Value root;
@@ -247,7 +312,7 @@ string createJsonString(char  (&read_buf)[BUFF_SIZE]){
 }
 
 int main() {
-
+	
 	//initialize socket 
 	int server_fd;
 	int new_socket = socket(server_fd);
@@ -260,6 +325,14 @@ int main() {
     //Set / read in settings for our Port
 	usb_port(serial_port);
 
+	//Connect to MySQL Database
+	MYSQL mysql;
+	mysqlConnect(mysql);
+	
+	//Query for machine names to use with our JsonString
+	vector<string> machines;	
+	machines =	mysqlQuery(mysql, "name");
+	
 	//numReads: num of reads from port
 	//n: num of iterations to read exact num of bits | 0 means nothing read this iteration, > 0 means something has been read 
     int numReads = 0, numIterations = 0, missed_reads = 0;
@@ -291,7 +364,7 @@ int main() {
 
 			print_buf(read_buf, numIterations, numReads);
 
-			const string tmp2 = createJsonString(read_buf);
+			const string tmp2 = createJsonString(read_buf, machines);
 
 			//convert string to char array
 			char const * stringified_json = tmp2.c_str();
@@ -299,6 +372,11 @@ int main() {
 
 			//make sure client is still connected to socket
 			int stillAlive = readSocket(new_socket);
+
+			//read from node js socket here
+			//sterilize string here
+			//write to port here
+
 			if(stillAlive > 0){
 				sendSocket(new_socket, stringified_json, size);	
 			}else{
@@ -320,7 +398,9 @@ int main() {
         numReads++;
     }
 	//Clean up
+	mysqlCloseConnect(mysql);
 	close(serial_port);
+
 
 }
 
