@@ -153,46 +153,59 @@ void mysqlConnect(MYSQL & mysql){
 	
 }
 
-vector<string> mysqlQuery(MYSQL & mysql, const char * field_name){
-	vector<string> machines;
+int mysqlQuery(MYSQL & mysql, vector<string> & machines, const char * field_name){
+	//TODO: Are mutliple return point good or bad practice???
+	//TODO: Select machine_table_name instead of *
 	unsigned int num_fields;
 	MYSQL_ROW row;
 
-	if(mysql_query(&mysql, "SELECT * from machines")){
-		//error
-		cout<<"MySQL Error"<<endl;
-		return machines;
-	}else{
-		MYSQL_RES *result  = mysql_store_result(&mysql);
-		if(result){
-			//Find the index of our machine table name field 
-			num_fields = mysql_num_fields(result); 
-			MYSQL_FIELD *fields;
-			unsigned int field_index;
-			fields = mysql_fetch_fields(result);
-			for(unsigned int i = 0; i < num_fields; i++){
-				if(!(strcmp(fields[i].name , field_name))){
-					field_index = i;
-				}
-			}			
+	if(mysql_query(&mysql, "SELECT * from machines")){ 
+		cout<<"MySQL Query Error"<<endl;
+		return 0;
+	}
+	MYSQL_RES *result  = mysql_store_result(&mysql);
+	if(!result){
+		fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
+		return 0;
+	}
+
+	//Find index of field_name and field_table_name
+	num_fields = mysql_num_fields(result); 
+	MYSQL_FIELD *fields;
+	fields = mysql_fetch_fields(result);
 	
-			//Search through rows
-			while ((row = mysql_fetch_row(result)))	{
-				for(unsigned int p = 0; p < num_fields; p++) {	
-					//if field matches our field_name from above, record that cell
-					if(p == field_index){
-						string t = row[p];//(1, row[p]);
-						machines.push_back(t);
-					}
-				}
+	unsigned int field_name_index;
+	bool field_name_index_found = false;
+	for(unsigned int i = 0; i < num_fields; i++){
+		if(!(strcmp(fields[i].name , field_name))){
+			field_name_index = i;
+			field_name_index_found = true;
+		}
+	}	
+
+	if(!field_name_index_found){
+		cout<<" Warning on mysql query: Bad field name in mySqlQuery()"<<endl;
+	}
+
+	//Search through rows
+	while ((row = mysql_fetch_row(result)))	{
+		for(unsigned int p = 0; p < num_fields; p++) {	
+			//if field matches our field_name or field_table_name from above, record that cell
+			if(p == field_name_index){
+				string t = row[p];
+				machines.push_back(t);
 			}
-			mysql_free_result(result);
-			return machines;
-		}else{
-			fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
-			return machines;
 		}
 	}
+
+	// //Print Vector
+	 for (std::vector<string>::const_iterator i = machines.begin(); i != machines.end(); ++i)
+		std::cout << *i << ' ';
+
+	mysql_free_result(result);
+	return 1;
+	
+	
 }
 
 void mysqlCloseConnect(MYSQL &mysql){
@@ -274,14 +287,21 @@ int socket(int & server_fd){
 }
 
 string createJsonString(char  (&read_buf)[BUFF_SIZE], const vector<string> &machines){
-	//string machines[8] = {"Air Compressor", "Air Dryer", "Tank 1", "Tank 1_3", "Tank 2_3", "Tank 3_3", "Generator", "Nitrogen Tank"}; 
 	int temp, pressure;
 	vector<Json::Value> arrayVehicles;
 	Json::Value root;
 	Json::Value myJson = root["machines"];
 
-	for(int i = 0; i < 8; i++)
-	{
+	//handle number of loops to not depend on mysql in case it fails
+	int num_machines = 0;
+	if(machines.size() <= 0) {
+		//Resort to hard code backup if mysql is not working
+		num_machines = 8;
+	}else{
+		num_machines = machines.size();
+	}
+
+	for(int i = 0; i < num_machines; i++){
 		stringstream ss;
 		ss.clear();
 		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)]));
@@ -290,7 +310,7 @@ string createJsonString(char  (&read_buf)[BUFF_SIZE], const vector<string> &mach
 		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[(i*2)+1]));
 		ss >> pressure;
 		
-		myJson["id"] = Json::Value("machine_"+to_string(i));
+		myJson["id"] = Json::Value::Int(i+1);
 		string machineName = machines[i]; 
 		myJson["name"] = Json::Value(machineName);
 		myJson["temp"] = Json::Value::Int(temp);
@@ -301,12 +321,16 @@ string createJsonString(char  (&read_buf)[BUFF_SIZE], const vector<string> &mach
 
 	Json::FastWriter fastWriter;
 	string output = "{ \"machines\":  [ ";
-	for(int i=0; i<8; i++){
+	for(int i=0; i<num_machines; i++){
 		if(i != 0)
 			output += ",";
 		output += fastWriter.write(arrayVehicles[i]);
 	}
 	output += " ] }";
+
+	if(machines.size() <= 0){
+		cout<<"Error/Warning: No data written, check mysql connection"<<endl;
+	}
 	
 	return(output);
 }
@@ -330,8 +354,12 @@ int main() {
 	mysqlConnect(mysql);
 	
 	//Query for machine names to use with our JsonString
-	vector<string> machines;	
-	machines =	mysqlQuery(mysql, "name");
+	vector<string> machines;
+	vector<string> machine_table_name;		
+	if(!(mysqlQuery(mysql, machines, "name"))){
+		cout<<"Query to MySQL did not successfully run"<<endl;
+	}
+
 	
 	//numReads: num of reads from port
 	//n: num of iterations to read exact num of bits | 0 means nothing read this iteration, > 0 means something has been read 
