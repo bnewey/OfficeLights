@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "/home/bbnewey/visual-workspace/OFFICE_LIGHTS/office_lights/**",
                 "/usr/local/include/*",
                 "/usr/include/*",
                 "/usr/include/mongo-cxx-driver-v2.4/src/*"

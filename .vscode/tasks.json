@@ -8,7 +8,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "command": "${workspaceFolder}/buildThis.sh",
+            "command": "/home/bbnewey/visual-workspace/OFFICE_LIGHTS/office_lights/buildThis.sh",
             "problemMatcher": [
                 "$gcc"
             ]
