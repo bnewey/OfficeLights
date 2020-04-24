@@ -113,21 +113,19 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 }
 
 
-void getDataFromRead(char  (&read_buf)[BUFF_SIZE],short & sv1,short &  sv2,short &  sv3,short &  sv4,short &  sv5,short &  sv6,short &  sv7,short &  sv8,short &  sv9,short &  sv10){
+void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> switch_vector){
 	if(read_buf[0] != 0x02){
 		return;
 	}
-	sv1 = read_buf[1]; 
-	sv2 = read_buf[2]; 
-	sv3 = read_buf[3]; 
-	sv4 = read_buf[4]; 
-	sv5 = read_buf[5]; 
-	sv6 = read_buf[6]; 
-	sv7 = read_buf[7]; 
-	sv8 = read_buf[8]; 
-	sv9 = read_buf[9]; 
-	sv10 = read_buf[10]; 
+	//Clear vector, changing size to 0
+	switch_vector.clear();
+	for(int i=0; i<250;i++){
+		switch_vector.push_back = read_buf[0];
+	}
 
+	if(switch_vector.size() != 250){
+		cout<<"VECTOR SIZE IS BAD"<<endl;
+	}
 }
 
 void editWriteBuf(char (&temp)[502] , SwitchHandler sh){

@@ -35,7 +35,7 @@ class SwitchHandler {
     ~SwitchHandler();
 
     // update
-    void updateSwitches(short, short, short);
+    void updateSwitches(vector<short>);
 
     //Timer 
     void updateTimers(float);

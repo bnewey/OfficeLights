@@ -105,17 +105,32 @@ SwitchHandler::~SwitchHandler(){
 
 
 
-void SwitchHandler::updateSwitches(short s1v, short s2v, short s3v){
+void SwitchHandler::updateSwitches(vector<short> switch_values){
     //Update members using params
     // auto iter = switches.begin();
     // for ( ; iter !=  switches.end(); iter++)
     // {
-    //     (*iter)->updateSwitch(s1v);
+    //     int array_index = (*iter)->getSwitchArrayIndex();
+    //     (*iter)->updateSwitch(array_index);
     // }
 
-    switches[0]->updateSwitch(s1v);
-    switches[1]->updateSwitch(s3v);
-    switches[2]->updateSwitch(s2v);
+    for(int i; i<    9   ; i++){
+        int array_index = switches[i]->getSwitchArrayIndex();
+        switches[i]->updateSwitch(switch_values[array_index]);
+    }
+    
+    // switches[0]->updateSwitch(switch_values[0]);
+    // switches[1]->updateSwitch(switch_values[2]);
+    // switches[2]->updateSwitch(switch_values[1]);
+    // switches[3]->updateSwitch(switch_values[3]);
+    // switches[4]->updateSwitch(switch_values[4]);
+    // switches[5]->updateSwitch(switch_values[5]);
+    // switches[6]->updateSwitch(switch_values[6]);
+    // switches[7]->updateSwitch(switch_values[7]);
+    // switches[8]->updateSwitch(switch_values[8]);
+
+
+    
     //Switch Logic
     
     

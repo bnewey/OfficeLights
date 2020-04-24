@@ -66,6 +66,9 @@ int main() {
 	char write_buf[502];
 	memset(&write_buf, '\0', sizeof(write_buf));
 
+	//Create vector for our switch values
+	vector<short> switch_vector(250,0);
+
     //Set / read in settings for our Port
 	usb_port(serial_port);
 
@@ -148,12 +151,12 @@ int main() {
 
 			//Take read data and fill our variables for update
 			//getPressuresLH(read_buf, low_pressure, high_pressure, compressor);
-			short sv1, sv2, sv3, sv4, sv5, sv6, sv7, sv8, sv9, sv10 =0;
-			getDataFromRead(read_buf, sv1, sv2, sv3, sv4, sv5, sv6, sv7, sv8, sv9, sv10);
+			//short sv1, sv2, sv3, sv4, sv5, sv6, sv7, sv8, sv9, sv10 =0;
+			getDataFromRead(read_buf, switch_vector);
 
 			//Call Update to SwitchHandler Object
 			//PUT THIS AFTER UI COMMAND CHECK
-			(*sh).updateSwitches(sv1 , sv2, sv3);//, sv2, sv3, sv4, sv5, sv6, sv7, sv8, sv9, sv10);			
+			(*sh).updateSwitches(switch_vector);			
 
 			// numJsonSends++;
 			// const string tmp2 = createJsonDataString(read_buf, (*sh), numJsonSends);
