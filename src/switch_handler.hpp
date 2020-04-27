@@ -15,6 +15,7 @@ class SwitchHandler {
     //Timers will be added/removed multiple times
     int test_var;
     vector<Switch *> switches; 
+    vector<Light *> lights;
 
     void init( int );
 

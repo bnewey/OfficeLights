@@ -32,14 +32,16 @@ class Switch {
     vector<Timer *> toggle_timers;  
     Timer * delay_timer;
 
+    bool checkLightsInit();
+
     public:
     // default constructor
     Switch();
 
     // constructor with params
-    Switch( int, int, short, short,  string, string );
+    Switch( int, int, short, short,  string, string, vector<Light *> );
 
-    void init(int , int , short, short , string , string );
+    void init(int , int , short, short , string , string, vector<Light *> );
 
     //Copy constructor
     Switch( const Switch &cp);
@@ -65,7 +67,7 @@ class Switch {
     
 
     //getters
-    vector<short> getLightValuesFromSwitch();
+    //vector<short> getLightValuesFromSwitch();
     int getSwitchId();
     int getSwitchArrayIndex();
     short getSwitchValue();

@@ -23,6 +23,7 @@ class Light {
     short value; // 0 == off | 1 == on
     string name;
     string description;
+    bool initialized;
 
   public:
     // default constructor
@@ -51,6 +52,7 @@ class Light {
     short getLightValue();
     string getLightName();
     string getLightDesc();
+    bool isInitialized();
 
     //setters 
     void setLightId(int);

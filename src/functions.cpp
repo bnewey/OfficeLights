@@ -113,14 +113,14 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 }
 
 
-void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> switch_vector){
+void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector){
 	if(read_buf[0] != 0x02){
 		return;
 	}
 	//Clear vector, changing size to 0
 	switch_vector.clear();
 	for(int i=0; i<250;i++){
-		switch_vector.push_back = read_buf[0];
+		switch_vector.push_back(read_buf[i+1]); //+1 because of 0x02 start char
 	}
 
 	if(switch_vector.size() != 250){

@@ -22,6 +22,7 @@ void Light::init(int id, int array_i, int switch_id,  short value, string name, 
     this->value = value; 
     this->name = name;
     this->description = desc;
+    this->initialized = true;
 }
 
 //Default Constructor
@@ -71,6 +72,9 @@ string Light::getLightName(){
 }
 string Light::getLightDesc(){
     return this->description;
+}
+bool Light::isInitialized(){
+    return this->initialized;
 }
 
 //setters
