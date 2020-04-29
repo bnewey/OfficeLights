@@ -33,15 +33,14 @@
 
 #include <mysql/mysql.h>
 
-#include "./switch_handler.cpp"
 //#include "./tmpSwitch.cpp"
+#include "./functions.hpp"
  
 #define PORT 8081 
 
 
 using namespace std;
 
-const short BUFF_SIZE = 502;
 
 void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Print iterations: "<< numIterations<<endl;

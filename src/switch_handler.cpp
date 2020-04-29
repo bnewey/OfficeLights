@@ -20,8 +20,10 @@
 #include <ctime>
 
 #include "./switch_handler.hpp"
-
-using namespace std;
+#include "./light.hpp"
+#include "./switch.hpp"
+#include "./single_switch.hpp"
+#include "./double_switch.hpp"
 
 
 // Functor for deleting pointers in vector.
@@ -51,50 +53,50 @@ void SwitchHandler::init(int number_of_switches){
 
         lights.push_back( new Light(1, 251, 1,  0, "light1", "desc1") );
         tmpLightVec.push_back( lights[0] );
-        switches.push_back( new Switch(1, 0, 0, 0, "switch1", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(1, 0, 0, 0, "switch1", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 252, 1,  0, "light2", "desc2") );
         tmpLightVec.push_back( lights[1] );
-        switches.push_back( new Switch(2, 2, 0, 0, "switch2", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(2, 2, 0, 0, "switch2", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 253, 1,  0, "light3", "desc3") );
         tmpLightVec.push_back( lights[2] );
-        switches.push_back( new Switch(3, 1, 0, 0, "switch3", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(3, 1, 0, 0, "switch3", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 254, 1,  0, "light4", "desc4") );
         tmpLightVec.push_back( lights[3] );
-        switches.push_back( new Switch(4, 3, 0, 0, "switch4", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(4, 3, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 255, 1,  0, "light5", "desc5") );
         tmpLightVec.push_back( lights[4] );
-        switches.push_back( new Switch(5, 4, 0, 0, "switch5", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(5, 4, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 256, 1,  0, "light6", "desc6") );
         tmpLightVec.push_back( lights[5] );
-        switches.push_back( new Switch(6, 5, 0, 0, "switch6", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(6, 5, 0, 0, "switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
         
         lights.push_back( new Light(1, 257, 1,  0, "light7", "desc7") );
         tmpLightVec.push_back( lights[6] );
-        switches.push_back( new Switch(7, 6, 0, 0, "switch7", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(7, 6, 0, 0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 258, 1,  0, "light8", "desc8") );
         tmpLightVec.push_back( lights[7] );
-        switches.push_back( new Switch(8, 7, 0, 0, "switch8", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(8, 7, 0, 0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         lights.push_back( new Light(1, 259, 1,  0, "light9", "desc9") );
         tmpLightVec.push_back( lights[8] );
-        switches.push_back( new Switch(9, 8, 0, 0, "switch9", "Switch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(9, 8, 0, 0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
-        cout<<"Switch1 made"<<endl;
+        cout<<"SingleSwitch1 made"<<endl;
 
         
     }
@@ -180,6 +182,7 @@ void SwitchHandler::updateSwitches(vector<short> switch_values){
     for(int i=0; i<    9   ; i++){
         int array_index = switches[i]->getSwitchArrayIndex();
         switches[i]->updateSwitch(switch_values[array_index]);
+
     }
 
 

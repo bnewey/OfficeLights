@@ -14,11 +14,6 @@
 #include <stdlib.h>
 #include <jsoncpp/json/json.h>
 
-//Functions File
-#include "./functions.cpp"
-
-
-
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
 #include <errno.h> // Error integer and strerror() function
@@ -39,7 +34,13 @@
 #include <netinet/in.h> 
 
 #include <mysql/mysql.h>
- 
+
+//forward declaration
+class SwitchHandler;
+//Functions File
+#include "./functions.hpp"
+
+
 #define PORT 8081 //also defined in functions.cpp
 
 

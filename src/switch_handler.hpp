@@ -3,9 +3,22 @@
 
 #include <vector>
 
-#include "./switch.cpp"
-//#include "./light.cpp"
+// class SingleSwitch;
+// class DoubleSwitch;
+// #include "./switch.hpp"
+// #include "./light.hpp"
 
+#include "./light.hpp"
+#include "./switch.hpp"
+#include "./single_switch.hpp"
+#include "./double_switch.hpp"
+
+// class Switch;
+// #include "./single_switch.hpp"
+// #include "./double_switch.hpp"
+// #include "./light.hpp"
+
+using namespace std;
 
 // Fraction class
 class SwitchHandler {

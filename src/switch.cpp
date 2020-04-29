@@ -13,7 +13,6 @@
 #include "./switch.hpp"
 
 
-using namespace std;
 
 void Switch::init(int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights){
     this->id = id; 
@@ -30,15 +29,15 @@ void Switch::init(int id, int array_i, short value, short mode, string name, str
 }
 
 //Default Constructor
-// Switch::Switch(){
+Switch::Switch(){
 
-//     //start with stop mode 1
+    //start with stop mode 1
 
-//     //(un)provided settings
-//     init(1,251,0,0, "defaultLight", "Default constructor was used", );
+    //(un)provided settings
+    //init(1,251,0,0, "defaultLight", "Default constructor was used", );
 
-//     //
-// }
+    //
+}
 
 // Constructor with int  current_mode passed
 Switch::Switch( int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights) {
@@ -105,34 +104,6 @@ Switch::~Switch(){
     delete delay_timer;
 }
 
-void Switch::updateSwitch(short value){
-    if(!checkLightsInit()){
-        return;
-    }
-
-    this->value = value;
-
-    if(value == 1 && mode ==0){
-        this->setMoveTimer(float(900.00));
-        this->setLight(short(1));
-        cout<<"Updating Switch 1 Lights to 1"<<endl;
-    }
-    if(mode == 1 && value == 1){
-        //Reset Toggle Timer if movement
-        this->setToggleTimer(float(900.00));
-    }
-    if(value == 2 && this->delay_timer->getIsTimeUp()){
-        this->mode = 1; //toggle mode
-        //Clear timer and toggle
-        this->setMoveTimer(0.00);
-        this->setToggleTimer(float(15.00));
-        this->toggleLight();
-        this->delay_timer->setTimerValue(float(1.00));
-        cout<<"Updating Switch 1 Lights to TOGGLE"<<endl;
-    }
-
-    
-}
 
 
 void Switch::updateTimer(float seconds_passed){
@@ -214,20 +185,7 @@ void Switch::toggleLight(){
 
 
 
-
 //getters
-// vector<short> Switch::getLightValuesFromSwitch(){
-//     vector<short> return_vector;
-    
-//     //Iterate switches
-//     auto iter = lights.begin();
-//     for ( ; iter !=  lights.end(); iter++){   
-//         short tmp = (*iter)->getLightValue();
-//         return_vector.push_back( tmp ); 
-//     }
-    
-//     return(return_vector);
-// }
 
 int Switch::getSwitchId(){
     return this->id;

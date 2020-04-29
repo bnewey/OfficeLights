@@ -13,7 +13,6 @@
 #include "./timer.hpp"
 
 
-using namespace std;
 
 //Default Constructor
 Timer::Timer(){

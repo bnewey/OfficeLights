@@ -9,15 +9,17 @@
 
 #include <ctime>
 
-#include "./timer.cpp"
-#include "./light.cpp"
+#include "./light.hpp"
+#include "./timer.hpp"
 
+
+using namespace std;
 
 // Fraction class
 class Switch {
 
   // private: no access from outside
-  private:
+  protected:
     
     
     int id; //index of readbuf
@@ -53,7 +55,9 @@ class Switch {
     ~Switch();
 
     // update
-    void updateSwitch(short);
+    virtual void updateSwitch(short) =0;
+    //update with two values
+    virtual void updateSwitch(short, short) = 0;
 
     //Timer 
     void updateTimer(float);
@@ -67,7 +71,6 @@ class Switch {
     
 
     //getters
-    //vector<short> getLightValuesFromSwitch();
     int getSwitchId();
     int getSwitchArrayIndex();
     short getSwitchValue();
