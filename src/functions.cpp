@@ -127,7 +127,7 @@ void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector
 	}
 }
 
-void editWriteBuf(char (&temp)[502] , SwitchHandler sh){
+void editWriteBuf(char (&temp)[502] , SwitchHandler * sh){
 	temp[0] = 0x02;
 
 	//Fill the Switch section
@@ -138,7 +138,7 @@ void editWriteBuf(char (&temp)[502] , SwitchHandler sh){
 
 	//Fill the Lights section
 	//fills with as many lights are existing
-	vector<short> lightValues = sh.getLightValues();
+	vector<short> lightValues = (*sh).getLightValues();
 
 	int lv_size = lightValues.size();
 	cout<<"light values vector SIZE: "<<lv_size<<endl;
@@ -152,18 +152,18 @@ void editWriteBuf(char (&temp)[502] , SwitchHandler sh){
 		temp[i+251+lv_size] =  0x00;
 	}
 
-	//cout<<sh.getLight1()<<endl;
-	// temp[250] = (sh.getLight1() ? 0x01 : 0x00);
-	// temp[251] = (sh.getLight1() ? 0x01 : 0x00);
-	// temp[252] = (sh.getLight2() ? 0x01 : 0x00);
-	// temp[253] = (sh.getLight3() ? 0x01 : 0x00);
-	// temp[254] = (sh.getLight4() ? 0x01 : 0x00);
-	// temp[255] = (sh.getLight5() ? 0x01 : 0x00);
-	// temp[256] = (sh.getLight6() ? 0x01 : 0x00);
-	// temp[257] = (sh.getLight7() ? 0x01 : 0x00);
-	// temp[258] = (sh.getLight8() ? 0x01 : 0x00);
-	// temp[259] = (sh.getLight9() ? 0x01 : 0x00);
-	// temp[260] = (sh.getLight10() ? 0x01 : 0x00);
+	//cout<<(*sh).getLight1()<<endl;
+	// temp[250] = ((*sh).getLight1() ? 0x01 : 0x00);
+	// temp[251] = ((*sh).getLight1() ? 0x01 : 0x00);
+	// temp[252] = ((*sh).getLight2() ? 0x01 : 0x00);
+	// temp[253] = ((*sh).getLight3() ? 0x01 : 0x00);
+	// temp[254] = ((*sh).getLight4() ? 0x01 : 0x00);
+	// temp[255] = ((*sh).getLight5() ? 0x01 : 0x00);
+	// temp[256] = ((*sh).getLight6() ? 0x01 : 0x00);
+	// temp[257] = ((*sh).getLight7() ? 0x01 : 0x00);
+	// temp[258] = ((*sh).getLight8() ? 0x01 : 0x00);
+	// temp[259] = ((*sh).getLight9() ? 0x01 : 0x00);
+	// temp[260] = ((*sh).getLight10() ? 0x01 : 0x00);
 
 
 	// for(int i=0; i<240;i++) { //space for later boards

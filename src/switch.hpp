@@ -26,6 +26,7 @@ class Switch {
     int array_index; //position in read_buf
     short value; // 0==no movement 1=movement 2=toggle
     short mode; // 0==no overrider 1=toggle override 
+    short type; // 0==single 1==double switch
     string name;
     string description;
 
@@ -41,9 +42,9 @@ class Switch {
     Switch();
 
     // constructor with params
-    Switch( int, int, short, short,  string, string, vector<Light *> );
+    Switch( int, int, short, short, short,  string, string, vector<Light *> );
 
-    void init(int , int , short, short , string , string, vector<Light *> );
+    void init(int , int , short, short, short , string , string, vector<Light *> );
 
     //Copy constructor
     Switch( const Switch &cp);
@@ -74,6 +75,7 @@ class Switch {
     int getSwitchId();
     int getSwitchArrayIndex();
     short getSwitchValue();
+    short getSwitchType(); //0=single 1=double
     string getSwitchName();
     string getSwitchDesc();
 

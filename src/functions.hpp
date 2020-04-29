@@ -27,7 +27,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 
 void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector);
 
-void editWriteBuf(char (&temp)[502] , SwitchHandler sh);
+void editWriteBuf(char (&temp)[502] , SwitchHandler * sh);
 
 void write_bytes(int & serial_port, char (&temp)[502]);
 

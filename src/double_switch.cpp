@@ -17,9 +17,9 @@
 DoubleSwitch::DoubleSwitch(){};
 
 // Constructor with int  current_mode passed
-DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights)
-    : Switch(id, array_i, value,  mode,  name, desc,  lights ) {
-    init(id, array_i, value, mode, name, desc, lights);  
+DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights)
+    : Switch(id, array_i, value,  mode, type, name, desc,  lights ) {
+    init(id, array_i, value, mode, type, name, desc, lights);  
 }
 
 
@@ -38,11 +38,6 @@ DoubleSwitch& DoubleSwitch::operator=(const DoubleSwitch& cp){
 //Deconstructor
 DoubleSwitch::~DoubleSwitch(){
     cout<<"Destructing"<<endl;
-    //Delete all lights
-    // auto iter = lights.begin();
-    // for ( ; iter !=  lights.end(); iter++){
-    //     delete (*iter);
-    // }
     //Delete all move_timers
     auto iter2 = move_timers.begin();
     for ( ; iter2 !=  move_timers.end(); iter2++){
@@ -75,12 +70,12 @@ void DoubleSwitch::updateSwitch(short value, short value2){
 
     this->value = value;
 
-    if(value == 1 && mode ==0){
+    if((value == 1 || value2 == 1) && mode ==0){
         this->setMoveTimer(float(900.00));
         this->setLight(short(1));
         cout<<"Updating DoubleSwitch 1 Lights to 1"<<endl;
     }
-    if(mode == 1 && value == 1){
+    if((mode == 1 || value2 == 1)&& value == 1){
         //Reset Toggle Timer if movement
         this->setToggleTimer(float(900.00));
     }

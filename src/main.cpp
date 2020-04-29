@@ -246,7 +246,7 @@ int main() {
 
 			//Have this write section after we recieve potential override commands from UI
 			//Edit write_buf with relay_p pointer to array
-			editWriteBuf(write_buf, (*sh));
+			editWriteBuf(write_buf, sh);
 				
 
 			//Write to Serial Port to Update Relays

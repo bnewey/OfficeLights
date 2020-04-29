@@ -17,9 +17,9 @@
 SingleSwitch::SingleSwitch(){};
 
 // Constructor with int  current_mode passed
-SingleSwitch::SingleSwitch( int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights)
-    : Switch(id, array_i, value,  mode,  name, desc,  lights ) {
-    init(id, array_i, value, mode, name, desc, lights);  
+SingleSwitch::SingleSwitch( int id, int array_i, short value, short mode,short type, string name, string desc, vector<Light *> lights)
+    : Switch(id, array_i, value,  mode, type,  name, desc,  lights ) {
+    init(id, array_i, value, mode, type, name, desc, lights);  
 }
 
 
@@ -38,11 +38,6 @@ SingleSwitch& SingleSwitch::operator=(const SingleSwitch& cp){
 //Deconstructor
 SingleSwitch::~SingleSwitch(){
     cout<<"Destructing"<<endl;
-    //Delete all lights
-    // auto iter = lights.begin();
-    // for ( ; iter !=  lights.end(); iter++){
-    //     delete (*iter);
-    // }
     //Delete all move_timers
     auto iter2 = move_timers.begin();
     for ( ; iter2 !=  move_timers.end(); iter2++){

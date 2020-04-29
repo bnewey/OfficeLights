@@ -14,11 +14,12 @@
 
 
 
-void Switch::init(int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights){
+void Switch::init(int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights){
     this->id = id; 
     this->array_index = array_i; 
     this->value = value; 
     this->mode = mode;
+    this->type = type;
     this->name = name;
     this->description = desc;
 
@@ -40,26 +41,19 @@ Switch::Switch(){
 }
 
 // Constructor with int  current_mode passed
-Switch::Switch( int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights) {
-    init(id, array_i, value, mode, name, desc, lights);  
+Switch::Switch( int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights) {
+    init(id, array_i, value, mode,type, name, desc, lights);  
 }
 
 //Copy constructor
 Switch::Switch( const Switch &cp)
-    : id(cp.id), array_index(cp.array_index), value(cp.value), mode(cp.mode), name(cp.name), 
+    : id(cp.id), array_index(cp.array_index), value(cp.value), mode(cp.mode), type(cp.type), name(cp.name), 
         description(cp.description), lights(cp.lights), move_timers(cp.move_timers), toggle_timers(cp.toggle_timers), delay_timers(cp.delay_timers)
 {}
 
 //Copy Constructor Assignment
 Switch& Switch::operator=(const Switch& cp){
-    if(this != &cp){
-        //IDK if lights destruct should still be here since its in SwitchHandler
-        // auto iter = lights.begin();
-        // for ( ; iter !=  lights.end(); iter++)
-        // {
-        //     delete (*iter);
-        // }
-        // lights.clear();
+    if(this != &cp){    
 
         auto iter2 = move_timers.begin();
         for ( ; iter2 !=  move_timers.end(); iter2++)
@@ -82,7 +76,7 @@ Switch& Switch::operator=(const Switch& cp){
         }
         delay_timers.clear();
 
-        init(cp.id, cp.array_index, cp.value,cp.mode, cp.name, cp.description, cp.lights);
+        init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description, cp.lights);
     }
     return *this;
 }
@@ -90,11 +84,6 @@ Switch& Switch::operator=(const Switch& cp){
 //Deconstructor
 Switch::~Switch(){
     cout<<"Destructing"<<endl;
-    //Delete all lights
-    // auto iter = lights.begin();
-    // for ( ; iter !=  lights.end(); iter++){
-    //     delete (*iter);
-    // }
     //Delete all move_timers
     auto iter2 = move_timers.begin();
     for ( ; iter2 !=  move_timers.end(); iter2++){
@@ -203,12 +192,14 @@ void Switch::toggleLight(){
 int Switch::getSwitchId(){
     return this->id;
 }
-
 int Switch::getSwitchArrayIndex(){
     return this->array_index;
 }
 short Switch::getSwitchValue(){
     return this->value;
+}
+short Switch::getSwitchType(){
+    return this->type;
 }
 string Switch::getSwitchName(){
     return this->name;

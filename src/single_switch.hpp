@@ -29,7 +29,7 @@ class SingleSwitch : public Switch{
     SingleSwitch();
 
     // constructor with params
-    SingleSwitch( int, int, short, short,  string, string, vector<Light *> );
+    SingleSwitch( int, int, short, short,short,  string, string, vector<Light *> );
 
     //Copy constructor
     SingleSwitch( const SingleSwitch &cp);
