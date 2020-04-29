@@ -1,0 +1,30 @@
+//Create new branch and switch to it
+git checkout -b <new branch name>
+
+//You can work and do commits
+git commit -a -m 'Edit to new Branch'
+
+//Push branch
+git push -u origin <new branch name>
+
+/////////////////////////////////////////////////////
+//if you need to go back to master branch, 
+git stash
+git checkout master
+
+//and back to branch
+git checkout <branch name>
+git stash pop
+/////////////////////////////////////////////////////
+
+//to merge branch into master after commits to branch
+git checkout master
+git merge <branch name>
+
+//delete that branch after merge
+git branch -d <branch name>
+
+//Mergetool
+//if you merge and there are conflicts
+git status //to check what happened
+git mergetool
