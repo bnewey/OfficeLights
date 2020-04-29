@@ -447,7 +447,7 @@ int nodeSocket(int & server_fd){
 	return new_socket;
 }
 
-string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler sh, long numJsonSends){
+string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * (*sh), long numJsonSends){
 	int temp=0;
 	//float timer_temp=0.00;
 	
@@ -481,25 +481,25 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler sh, lon
 	}
 
 	//Lights
-	// temp = sh.getLight1();
+	// temp = (*sh).getLight1();
 	// myJson["light1"] = Json::Value::Int(temp);
-	// temp = sh.getLight2();
+	// temp = (*sh).getLight2();
 	// myJson["light2"] = Json::Value::Int(temp);
-	// temp = sh.getLight3();
+	// temp = (*sh).getLight3();
 	// myJson["light3"] = Json::Value::Int(temp);
-	// temp = sh.getLight4();
+	// temp = (*sh).getLight4();
 	// myJson["light4"] = Json::Value::Int(temp);
-	// temp = sh.getLight5();
+	// temp = (*sh).getLight5();
 	// myJson["light5"] = Json::Value::Int(temp);
-	// temp = sh.getLight6();
+	// temp = (*sh).getLight6();
 	// myJson["light6"] = Json::Value::Int(temp);
-	// temp = sh.getLight7();
+	// temp = (*sh).getLight7();
 	// myJson["light7"] = Json::Value::Int(temp);
-	// temp = sh.getLight8();
+	// temp = (*sh).getLight8();
 	// myJson["light8"] = Json::Value::Int(temp);
-	// temp = sh.getLight9();
+	// temp = (*sh).getLight9();
 	// myJson["light9"] = Json::Value::Int(temp);
-	// temp = sh.getLight10();
+	// temp = (*sh).getLight10();
 	// myJson["light10"] = Json::Value::Int(temp);
 
 

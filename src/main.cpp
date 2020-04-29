@@ -160,7 +160,7 @@ int main() {
 			(*sh).updateSwitches(switch_vector);			
 
 			// numJsonSends++;
-			// const string tmp2 = createJsonDataString(read_buf, (*sh), numJsonSends);
+			// const string tmp2 = createJsonDataString(read_buf, sh, numJsonSends);
 			// //convert string to char array
 			// char const * stringified_json = tmp2.c_str();
 			// int size = strlen(stringified_json);

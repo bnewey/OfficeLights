@@ -40,10 +40,6 @@ template<class T> class DeleteVector
     }
 };
 
-//MONDAY:
-//RECAP:
-// i just moved lights vector from Switch to SwitchHandler, causing memory problems,
-// get All in One working to further test
 
 void SwitchHandler::init(int number_of_switches){
     if(number_of_switches > 0 && number_of_switches < 251){
@@ -63,34 +59,34 @@ void SwitchHandler::init(int number_of_switches){
         tmpLightVec.clear();
         //
 
-        lights.push_back( new Light(1, 254, 1,  0, "light4", "desc4") );
+        lights.push_back( new Light(1, 253, 1,  0, "light4", "desc4") );
         tmpLightVec.push_back( lights[2] );
-        switches.push_back( new SingleSwitch(4, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(3, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
-        lights.push_back( new Light(1, 255, 1,  0, "light5", "desc5") );
+        lights.push_back( new Light(1, 254, 1,  0, "light5", "desc5") );
         tmpLightVec.push_back( lights[3] );
-        switches.push_back( new SingleSwitch(5, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(4, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
-        lights.push_back( new Light(1, 256, 1,  0, "light6", "desc6") );
+        lights.push_back( new Light(1, 255, 1,  0, "light6", "desc6") );
         tmpLightVec.push_back( lights[4] );
-        switches.push_back( new SingleSwitch(6, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(5, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
         
-        lights.push_back( new Light(1, 257, 1,  0, "light7", "desc7") );
+        lights.push_back( new Light(1, 256, 1,  0, "light7", "desc7") );
         tmpLightVec.push_back( lights[5] );
-        switches.push_back( new SingleSwitch(7, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(6, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
-        lights.push_back( new Light(1, 258, 1,  0, "light8", "desc8") );
+        lights.push_back( new Light(1, 257, 1,  0, "light8", "desc8") );
         tmpLightVec.push_back( lights[6] );
-        switches.push_back( new SingleSwitch(8, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(7, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
-        lights.push_back( new Light(1, 259, 1,  0, "light9", "desc9") );
+        lights.push_back( new Light(1, 258, 1,  0, "light9", "desc9") );
         tmpLightVec.push_back( lights[7] );
-        switches.push_back( new SingleSwitch(9, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
         tmpLightVec.clear();
 
         cout<<"SingleSwitch1 made"<<endl;
