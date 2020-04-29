@@ -54,7 +54,12 @@ SingleSwitch::~SingleSwitch(){
         delete (*iter3);
     }
 
-    delete delay_timer;
+    auto iter4 = delay_timers.begin();
+    for ( ; iter4 !=  delay_timers.end(); iter4++)
+    {
+        delete (*iter4);
+    }
+    delay_timers.clear();
 }
 
 void SingleSwitch::updateSwitch(short value){
@@ -74,13 +79,13 @@ void SingleSwitch::updateSwitch(short value){
         //Reset Toggle Timer if movement
         this->setToggleTimer(float(900.00));
     }
-    if(value == 2 && this->delay_timer->getIsTimeUp()){
+    if(value == 2 && this->delay_timers[0]->getIsTimeUp()){
         this->mode = 1; //toggle mode
         //Clear timer and toggle
         this->setMoveTimer(0.00);
         this->setToggleTimer(float(15.00));
         this->toggleLight();
-        this->delay_timer->setTimerValue(float(1.00));
+        this->delay_timers[0]->setTimerValue(float(1.00));
         cout<<"Updating SingleSwitch 1 Lights to TOGGLE"<<endl;
     }
 

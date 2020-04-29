@@ -54,7 +54,12 @@ DoubleSwitch::~DoubleSwitch(){
         delete (*iter3);
     }
 
-    delete delay_timer;
+    auto iter4 = delay_timers.begin();
+    for ( ; iter4 !=  delay_timers.end(); iter4++)
+    {
+        delete (*iter4);
+    }
+    delay_timers.clear();
 }
 
 void DoubleSwitch::updateSwitch(short value){
@@ -79,13 +84,13 @@ void DoubleSwitch::updateSwitch(short value, short value2){
         //Reset Toggle Timer if movement
         this->setToggleTimer(float(900.00));
     }
-    if(value == 2 && this->delay_timer->getIsTimeUp()){
+    if(value == 2 && this->delay_timers[0]->getIsTimeUp()){
         this->mode = 1; //toggle mode
         //Clear timer and toggle
         this->setMoveTimer(0.00);
         this->setToggleTimer(float(15.00));
         this->toggleLight();
-        this->delay_timer->setTimerValue(float(1.00));
+        this->delay_timers[0]->setTimerValue(float(1.00));
         cout<<"Updating DoubleSwitch 1 Lights to TOGGLE"<<endl;
     }
 

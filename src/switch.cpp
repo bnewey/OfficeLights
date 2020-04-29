@@ -25,7 +25,7 @@ void Switch::init(int id, int array_i, short value, short mode, string name, str
     this->lights = lights;
     this->move_timers.push_back( new Timer(1, 1, 0) );
     this->toggle_timers.push_back( new Timer(2, 1, 0));
-    this->delay_timer = new Timer(3,1,0);
+    this->delay_timers.push_back(new Timer(3,1,0));
 }
 
 //Default Constructor
@@ -47,7 +47,7 @@ Switch::Switch( int id, int array_i, short value, short mode, string name, strin
 //Copy constructor
 Switch::Switch( const Switch &cp)
     : id(cp.id), array_index(cp.array_index), value(cp.value), mode(cp.mode), name(cp.name), 
-        description(cp.description), lights(cp.lights), move_timers(cp.move_timers), toggle_timers(cp.toggle_timers), delay_timer(cp.delay_timer)
+        description(cp.description), lights(cp.lights), move_timers(cp.move_timers), toggle_timers(cp.toggle_timers), delay_timers(cp.delay_timers)
 {}
 
 //Copy Constructor Assignment
@@ -75,7 +75,12 @@ Switch& Switch::operator=(const Switch& cp){
         }
         toggle_timers.clear();
 
-        delete delay_timer;
+        auto iter4 = delay_timers.begin();
+        for ( ; iter4 !=  delay_timers.end(); iter4++)
+        {
+            delete (*iter4);
+        }
+        delay_timers.clear();
 
         init(cp.id, cp.array_index, cp.value,cp.mode, cp.name, cp.description, cp.lights);
     }
@@ -101,7 +106,12 @@ Switch::~Switch(){
         delete (*iter3);
     }
 
-    delete delay_timer;
+    auto iter4 = delay_timers.begin();
+        for ( ; iter4 !=  delay_timers.end(); iter4++)
+        {
+            delete (*iter4);
+        }
+        delay_timers.clear();
 }
 
 
@@ -109,7 +119,7 @@ Switch::~Switch(){
 void Switch::updateTimer(float seconds_passed){
 
     //Delay Timer update for toggle mode
-    bool isDelayUp = delay_timer->updateTimer(seconds_passed);
+    bool isDelayUp = delay_timers[0]->updateTimer(seconds_passed);
 
     // TOGGLE MODE
     if(this->mode == 1){ 
@@ -166,7 +176,10 @@ void Switch::setToggleTimer(float time_to_set){
 }
 
 void Switch::setDelayTimer(float time_to_set){
-    this->delay_timer->setTimerValue(float(time_to_set));
+    auto iter1 = delay_timers.begin();
+    for ( ; iter1 !=  delay_timers.end(); iter1++){
+        (*iter1)->setTimerValue(float(time_to_set));
+    }
 }
 
 void Switch::setLight(short new_light_value){

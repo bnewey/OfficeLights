@@ -32,7 +32,7 @@ class Switch {
     vector<Light *> lights;
     vector<Timer *> move_timers; 
     vector<Timer *> toggle_timers;  
-    Timer * delay_timer;
+    vector<Timer *> delay_timers;
 
     bool checkLightsInit();
 
