@@ -19,7 +19,8 @@ SingleSwitch::SingleSwitch(){};
 // Constructor with int  current_mode passed
 SingleSwitch::SingleSwitch( int id, int array_i, short value, short mode,short type, string name, string desc, vector<Light *> lights)
     : Switch(id, array_i, value,  mode, type,  name, desc,  lights ) {
-    init(id, array_i, value, mode, type, name, desc, lights);  
+    //calling init cause it to run twice, once in parent and once here
+    //init(id, array_i, value, mode, type, name, desc, lights);  
 }
 
 
@@ -58,7 +59,7 @@ SingleSwitch::~SingleSwitch(){
 }
 
 void SingleSwitch::updateSwitch(short value){
-    cout<<"Single Switch"<<endl;
+    cout<<"Switch"<<this->id<<": "<<value<<endl;
     if(!checkLightsInit()){
         return;
     }

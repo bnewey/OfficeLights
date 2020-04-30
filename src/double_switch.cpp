@@ -19,7 +19,8 @@ DoubleSwitch::DoubleSwitch(){};
 // Constructor with int  current_mode passed
 DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights)
     : Switch(id, array_i, value,  mode, type, name, desc,  lights ) {
-    init(id, array_i, value, mode, type, name, desc, lights);  
+        //calling init cause it to run twice, once in parent and once here
+    //init(id, array_i, value, mode, type, name, desc, lights);  
 }
 
 
@@ -63,7 +64,7 @@ void DoubleSwitch::updateSwitch(short value){
 }
 
 void DoubleSwitch::updateSwitch(short value, short value2){
-    cout<<"Dbl Switch"<<value2<<endl;
+    cout<<"Switch"<<this->id<<": "<<value<<" & "<<value2<<endl;
     if(!checkLightsInit()){
         return;
     }
