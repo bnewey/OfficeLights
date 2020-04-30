@@ -64,11 +64,11 @@ int main() {
 	memset(&ui_buf, '\0', sizeof(ui_buf));
 
 	//Allocate memory for write_buf command buffer
-	char write_buf[502];
+	char write_buf[302];
 	memset(&write_buf, '\0', sizeof(write_buf));
 
 	//Create vector for our switch values
-	vector<short> switch_vector(250,0);
+	vector<short> switch_vector(150,0);
 
     //Set / read in settings for our Port
 	usb_port(serial_port);

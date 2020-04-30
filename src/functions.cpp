@@ -51,10 +51,10 @@ void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout <<endl<<endl;
 }
 
-void print_write_buff(char (&write_buf)[502], int numIterations, int numReads){
+void print_write_buff(char (&write_buf)[302], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Write iterations: "<< numIterations<<endl;
 
-	for (int i = 0; i < 502; ++i)
+	for (int i = 0; i < 302; ++i)
 		cout <<  hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&write_buf[i])) << dec << " ";
 
 	cout <<endl<<endl;
@@ -101,7 +101,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 				cout<<"Read exception caught"<<endl;
 			}	
 		}
-		if(read_buf[0] != 0x02 && read_buf[501] != 0x55){
+		if(read_buf[0] != 0x02 && read_buf[301] != 0x55){
 			cout<<"ERROR: BAD INPUT FROM COM PORT"<<endl;
 			//print_buf(read_buf, 1 ,1);
 			return 0;
@@ -118,21 +118,21 @@ void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector
 	}
 	//Clear vector, changing size to 0
 	switch_vector.clear();
-	for(int i=0; i<250;i++){
+	for(int i=0; i<150;i++){
 		switch_vector.push_back(read_buf[i+1]); //+1 because of 0x02 start char
 	}
 
-	if(switch_vector.size() != 250){
+	if(switch_vector.size() != 150){
 		cout<<"VECTOR SIZE IS BAD"<<endl;
 	}
 }
 
-void editWriteBuf(char (&temp)[502] , SwitchHandler * sh){
+void editWriteBuf(char (&temp)[302] , SwitchHandler * sh){
 	temp[0] = 0x02;
 
 	//Fill the Switch section
 	//this section is ignored
-	for(int i=0; i<250;i++) { 
+	for(int i=0; i<150;i++) { 
 		temp[i+1] = 0x00;
 	}
 
@@ -145,11 +145,11 @@ void editWriteBuf(char (&temp)[502] , SwitchHandler * sh){
 
 	auto iter = lightValues.begin();
     for ( ; iter !=  lightValues.end(); iter++){   
-        temp[251 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
+        temp[151 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
     }
 	//Give the rest 0's
-	for(int i=0; i<(250-lv_size);i++) { //this section is ignored
-		temp[i+251+lv_size] =  0x00;
+	for(int i=0; i<(150-lv_size);i++) { //this section is ignored
+		temp[i+151+lv_size] =  0x00;
 	}
 
 	//cout<<(*sh).getLight1()<<endl;
@@ -169,13 +169,13 @@ void editWriteBuf(char (&temp)[502] , SwitchHandler * sh){
 	// for(int i=0; i<240;i++) { //space for later boards
 	// 	temp[i+261] = 0x00;
 	// } 
-	temp[501] = 0xaa;
+	temp[301] = 0xaa;
 
 }
 
 
-void write_bytes(int & serial_port, char (&temp)[502]){
-	write(serial_port, temp, 502);//sizeof(temp));
+void write_bytes(int & serial_port, char (&temp)[302]){
+	write(serial_port, temp, 302);//sizeof(temp));
 }
 
 int usb_port(int & serial_port) {
