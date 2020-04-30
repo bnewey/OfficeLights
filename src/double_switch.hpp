@@ -29,7 +29,7 @@ class DoubleSwitch : public Switch{
     DoubleSwitch();
 
     // constructor with params
-    DoubleSwitch( int, int, short, short,short,  string, string, vector<Light *> );
+    DoubleSwitch( int, int, short, short,short,  string, string );
 
     //Copy constructor
     DoubleSwitch( const DoubleSwitch &cp);

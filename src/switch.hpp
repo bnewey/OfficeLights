@@ -42,9 +42,9 @@ class Switch {
     Switch();
 
     // constructor with params
-    Switch( int, int, short, short, short,  string, string, vector<Light *> );
+    Switch( int, int, short, short, short,  string, string );
 
-    void init(int , int , short, short, short , string , string, vector<Light *> );
+    void init(int , int , short, short, short , string , string );
 
     //Copy constructor
     Switch( const Switch &cp);
@@ -69,6 +69,7 @@ class Switch {
     //Lights
     void setLight(short );
     void toggleLight();
+    void addLightToSwitch( Light * );
     
 
     //getters

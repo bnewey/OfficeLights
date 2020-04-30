@@ -64,37 +64,38 @@ int main() {
 	memset(&ui_buf, '\0', sizeof(ui_buf));
 
 	//Allocate memory for write_buf command buffer
-	char write_buf[502];
+	char write_buf[302];
 	memset(&write_buf, '\0', sizeof(write_buf));
 
 	//Create vector for our switch values
-	vector<short> switch_vector(250,0);
+	vector<short> switch_vector(150,0);
 
     //Set / read in settings for our Port
 	usb_port(serial_port);
 
 	//Connect to MySQL Database
-	// MYSQL mysql;
-	// mysqlConnect(mysql);
+	MYSQL mysql;
+	mysqlConnect(mysql);
 	
-	//Query for machine names to use with our JsonString
-	// vector<string> machines;
-	// vector<string> machine_table_name;		
-	// if(!(mysqlQuery(mysql, machines, "name"))){
-	// 	cout<<"Query to MySQL did not successfully run"<<endl;
-	// }
 
-	// //Get switch_variables 
-	// vector< vector<string> > switch_variables;
-	// if(!(mysqlQueryFixed(mysql, switch_variables))){
-	// 	cout<<"Query to MySQL did not successfully get switch_variables, default variables applied"<<endl;
-	// }
+	// //Get switches 
+	vector< vector<string> > switch_variables;
+	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
+		cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
+		return;
+	}
+
+	vector<vector<string> > light_variables;
+	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
+		cout<<"Query to MySQL did not successfully get light variables"<<endl;
+		return;
+	}
 
 	//Set Start time for Timers
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	
 	//SwitchHandler switchHandler(); 
-	SwitchHandler * sh = new SwitchHandler(1);
+	SwitchHandler * sh = new SwitchHandler(switch_variables, light_variables);
 
 	//ModeHandler switchHandler;
 

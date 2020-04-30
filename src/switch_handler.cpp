@@ -41,60 +41,74 @@ template<class T> class DeleteVector
 };
 
 
-void SwitchHandler::init(int number_of_switches){
-    if(number_of_switches > 0 && number_of_switches < 251){
-        //Lights
-        vector<Light *> tmpLightVec(2);
-        tmpLightVec.clear();
+void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<string>> light_config){
+    if(switch_config.size() > -1 && light_config.size() > -1){
 
-        lights.push_back( new Light(1, 251, 1,  0, "light1", "desc1") );
-        tmpLightVec.push_back( lights[0] );
-        switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "switch1", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
 
-        //Double Switch
-        lights.push_back( new Light(1, 252, 1,  0, "light2", "double switch light") );
-        tmpLightVec.push_back( lights[1] );
-        switches.push_back( new DoubleSwitch(2, 1, 0, 0,1, "switch2", "DOUBLESwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-        //
-
-        lights.push_back( new Light(1, 253, 1,  0, "light4", "desc4") );
-        tmpLightVec.push_back( lights[2] );
-        switches.push_back( new SingleSwitch(3, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 254, 1,  0, "light5", "desc5") );
-        tmpLightVec.push_back( lights[3] );
-        switches.push_back( new SingleSwitch(4, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 255, 1,  0, "light6", "desc6") );
-        tmpLightVec.push_back( lights[4] );
-        switches.push_back( new SingleSwitch(5, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
+        int sw_con_size = switch_config.size();
+        for(int i=0; i<sw_con_size; i++){
+            switches.push_back( new SingleSwitch(switch_config[i][0], switch_config[i][1], 0, 0,0, switch_config[i][3], switch_config[i][4]) );
+        }
         
-        lights.push_back( new Light(1, 256, 1,  0, "light7", "desc7") );
-        tmpLightVec.push_back( lights[5] );
-        switches.push_back( new SingleSwitch(6, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
+        int light_con_size = light_config.size();
+        for(int i=0; i<light_con_size; i++){
+            lights.push_back( new Light(light_config[i][0], light_config[i][1], light_config[i][2],  0, light_config[i][4], light_config[i][5]) );
+        }
 
-        lights.push_back( new Light(1, 257, 1,  0, "light8", "desc8") );
-        tmpLightVec.push_back( lights[6] );
-        switches.push_back( new SingleSwitch(7, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
+        
 
-        lights.push_back( new Light(1, 258, 1,  0, "light9", "desc9") );
-        tmpLightVec.push_back( lights[7] );
-        switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
+        //Lights
+        // vector<Light *> tmpLightVec(2);
+        // tmpLightVec.clear();
 
-        cout<<"SingleSwitch1 made"<<endl;
+        // lights.push_back( new Light(1, 151, 1,  0, "light1", "desc1") );
+        // tmpLightVec.push_back( lights[0] );
+        // switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "switch1", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        // //Double Switch
+        // lights.push_back( new Light(1, 152, 1,  0, "light2", "double switch light") );
+        // tmpLightVec.push_back( lights[1] );
+        // switches.push_back( new DoubleSwitch(2, 1, 0, 0,1, "switch2", "DOUBLESwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+        // //
+
+        // lights.push_back( new Light(1, 153, 1,  0, "light4", "desc4") );
+        // tmpLightVec.push_back( lights[2] );
+        // switches.push_back( new SingleSwitch(3, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        // lights.push_back( new Light(1, 154, 1,  0, "light5", "desc5") );
+        // tmpLightVec.push_back( lights[3] );
+        // switches.push_back( new SingleSwitch(4, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        // lights.push_back( new Light(1, 155, 1,  0, "light6", "desc6") );
+        // tmpLightVec.push_back( lights[4] );
+        // switches.push_back( new SingleSwitch(5, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+        
+        // lights.push_back( new Light(1, 156, 1,  0, "light7", "desc7") );
+        // tmpLightVec.push_back( lights[5] );
+        // switches.push_back( new SingleSwitch(6, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        // lights.push_back( new Light(1, 157, 1,  0, "light8", "desc8") );
+        // tmpLightVec.push_back( lights[6] );
+        // switches.push_back( new SingleSwitch(7, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        // lights.push_back( new Light(1, 158, 1,  0, "light9", "desc9") );
+        // tmpLightVec.push_back( lights[7] );
+        // switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        // tmpLightVec.clear();
+
+        //cout<<"SingleSwitch1 made"<<endl;
 
         
     }
 
-    test_var = 1;
+    this->initialized = true;
 }
 
 //Default Constructor
@@ -108,14 +122,15 @@ SwitchHandler::SwitchHandler(){
 }
 
 // Constructor with int  current_mode passed
-SwitchHandler::SwitchHandler( int number_of_switches){
-    this->init(number_of_switches);
+SwitchHandler::SwitchHandler( vector<vector<string>> switch_config, vector<vector<string>> light_config){
+    this->initialized = false;
+    this->init(switch_config, light_config);
 
 }
 
 //Copy Constructor
 SwitchHandler::SwitchHandler(const SwitchHandler  &cp)
-    : test_var(1), switches(cp.switches), lights(cp.lights)
+    : initialized(cp.initialized), switches(cp.switches), lights(cp.lights)
 {}
 
 //Copy Constructor Assignment
@@ -175,6 +190,11 @@ void SwitchHandler::updateSwitches(vector<short> switch_values){
     //     int array_index = (*iter)->getSwitchArrayIndex();
     //     (*iter)->updateSwitch(array_index);
     // }
+    if(!(this->initialized == true)){
+        cout<<"Not yet initialized"<<endl;
+        return;
+    }
+
 
     for(int i=0; i<    8   ; i++){
         int switch_type = switches[i]->getSwitchType();
@@ -212,13 +232,18 @@ void SwitchHandler::updateTimers(float seconds_passed){
 
 //getters
 vector<short> SwitchHandler::getLightValues(){
-    vector<short> return_vector;
+    vector<short> return_vector(150,0);
     
-    auto iter = lights.begin();
-    for ( ; iter !=  lights.end(); iter++){   
-        short tmp = (*iter)->getLightValue();
-        return_vector.push_back( tmp ); 
+    int l_size = lights.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = lights[i]->getLightArrayIndex();
+        return_vector[tmp] = lights[i]->getLightValue();
     }
+    // auto iter = lights.begin();
+    // for ( ; iter !=  lights.end(); iter++){   
+    //     short tmp = (*iter)->getLightValue();
+    //     return_vector.push_back( tmp ); 
+    // }
 
     return return_vector;
 } 
