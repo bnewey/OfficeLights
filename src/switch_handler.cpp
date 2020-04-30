@@ -47,47 +47,52 @@ void SwitchHandler::init(int number_of_switches){
         vector<Light *> tmpLightVec(2);
         tmpLightVec.clear();
 
-        lights.push_back( new Light(1, 151, 1,  0, "light1", "desc1") );
+        lights.push_back( new Light(1, 151, 1,  0, "Bens", "desc1") );
         tmpLightVec.push_back( lights[0] );
-        switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "switch1", "SingleSwitch for office next to Ben's", tmpLightVec) );
+        switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "Bens", "SingleSwitch for Bens office", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(2, 152, 2,  0, "Mikes", "desc2") );
+        tmpLightVec.push_back( lights[1] );
+        switches.push_back( new SingleSwitch(2, 2, 0, 0, 0, "Mikes", "Mikes office", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(3, 153, 3,  0, "Frames", "desc3") );
+        tmpLightVec.push_back( lights[2] );
+        switches.push_back( new SingleSwitch(3, 4, 0, 0, 0, "Frames", "Frames office", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(4, 154, 4,  0, "Conference", "desc4") );
+        tmpLightVec.push_back( lights[3] );
+        switches.push_back( new SingleSwitch(4, 5, 0, 0, 0,"Conference Room", "Conference Room", tmpLightVec) );
+        tmpLightVec.clear();
+        
+        lights.push_back( new Light(5, 155, 5,  0, "Holding", "desc5") );
+        tmpLightVec.push_back( lights[4] );
+        switches.push_back( new SingleSwitch(5, 6, 0, 0,0, "Holding", "Holding", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(6, 156, 6,  0, "Jeremy", "desc6") );
+        tmpLightVec.push_back( lights[5] );
+        switches.push_back( new SingleSwitch(6, 7, 0, 0,0, "Jeremy Office", "Jeremys office", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(7, 157, 7,  0, "Weston", "desc7") );
+        tmpLightVec.push_back( lights[6] );
+        switches.push_back( new SingleSwitch(7, 8, 0, 0,0, "Weston", "Westons office", tmpLightVec) );
+        tmpLightVec.clear();
+
+        lights.push_back( new Light(8, 158, 8,  0, "Joe", "desc8") );
+        tmpLightVec.push_back( lights[7] );
+        switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "Joe", "Joes office", tmpLightVec) );
         tmpLightVec.clear();
 
         //Double Switch
-        lights.push_back( new Light(1, 152, 1,  0, "light2", "double switch light") );
-        tmpLightVec.push_back( lights[1] );
-        switches.push_back( new DoubleSwitch(2, 1, 0, 0,1, "switch2", "DOUBLESwitch for office next to Ben's", tmpLightVec) );
+        lights.push_back( new Light(9, 159, 9,  0, "light2", "double switch light9") );
+        tmpLightVec.push_back( lights[8] );
+        switches.push_back( new DoubleSwitch(9, 1, 0, 0,1, "Front/Back Hall", "Front/Back Hall Dbl Switch", tmpLightVec) );
         tmpLightVec.clear();
         //
-
-        lights.push_back( new Light(1, 153, 1,  0, "light4", "desc4") );
-        tmpLightVec.push_back( lights[2] );
-        switches.push_back( new SingleSwitch(3, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 154, 1,  0, "light5", "desc5") );
-        tmpLightVec.push_back( lights[3] );
-        switches.push_back( new SingleSwitch(4, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 155, 1,  0, "light6", "desc6") );
-        tmpLightVec.push_back( lights[4] );
-        switches.push_back( new SingleSwitch(5, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-        
-        lights.push_back( new Light(1, 156, 1,  0, "light7", "desc7") );
-        tmpLightVec.push_back( lights[5] );
-        switches.push_back( new SingleSwitch(6, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 157, 1,  0, "light8", "desc8") );
-        tmpLightVec.push_back( lights[6] );
-        switches.push_back( new SingleSwitch(7, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 158, 1,  0, "light9", "desc9") );
-        tmpLightVec.push_back( lights[7] );
-        switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        tmpLightVec.clear();
 
         cout<<"SingleSwitch1 made"<<endl;
 
