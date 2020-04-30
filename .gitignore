@@ -1,5 +1,46 @@
-/bin/main
+# Prerequisites
+*.d
+<<<<<<< Updated upstream
+bin/main
+=======
+>>>>>>> Stashed changes
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+<<<<<<< Updated upstream
 /buildThis.sh
+# Precompiled Headers
+*.gch
+*.pch
 /buildThisTest.sh
-/.vscode
+=======
 
+# Precompiled Headers
+*.gch
+*.pch
+
+>>>>>>> Stashed changes
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+<<<<<<< Updated upstream
+=======
+*.smod
+>>>>>>> Stashed changes
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
