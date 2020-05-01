@@ -13,7 +13,6 @@
 #include "./light.hpp"
 
 
-using namespace std;
 
 void Light::init(int id, int array_i, int switch_id,  short value, string name, string desc){
     this->id = id; 

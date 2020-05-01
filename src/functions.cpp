@@ -33,15 +33,14 @@
 
 #include <mysql/mysql.h>
 
-#include "./switch_handler.cpp"
 //#include "./tmpSwitch.cpp"
+#include "./functions.hpp"
  
 #define PORT 8081 
 
 
 using namespace std;
 
-const short BUFF_SIZE = 502;
 
 void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Print iterations: "<< numIterations<<endl;
@@ -52,10 +51,10 @@ void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout <<endl<<endl;
 }
 
-void print_write_buff(char (&write_buf)[502], int numIterations, int numReads){
+void print_write_buff(char (&write_buf)[302], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Write iterations: "<< numIterations<<endl;
 
-	for (int i = 0; i < 502; ++i)
+	for (int i = 0; i < 302; ++i)
 		cout <<  hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&write_buf[i])) << dec << " ";
 
 	cout <<endl<<endl;
@@ -102,7 +101,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 				cout<<"Read exception caught"<<endl;
 			}	
 		}
-		if(read_buf[0] != 0x02 && read_buf[501] != 0x55){
+		if(read_buf[0] != 0x02 && read_buf[301] != 0x55){
 			cout<<"ERROR: BAD INPUT FROM COM PORT"<<endl;
 			//print_buf(read_buf, 1 ,1);
 			return 0;
@@ -119,64 +118,64 @@ void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector
 	}
 	//Clear vector, changing size to 0
 	switch_vector.clear();
-	for(int i=0; i<250;i++){
+	for(int i=0; i<150;i++){
 		switch_vector.push_back(read_buf[i+1]); //+1 because of 0x02 start char
 	}
 
-	if(switch_vector.size() != 250){
+	if(switch_vector.size() != 150){
 		cout<<"VECTOR SIZE IS BAD"<<endl;
 	}
 }
 
-void editWriteBuf(char (&temp)[502] , SwitchHandler sh){
+void editWriteBuf(char (&temp)[302] , SwitchHandler * sh){
 	temp[0] = 0x02;
 
 	//Fill the Switch section
 	//this section is ignored
-	for(int i=0; i<250;i++) { 
+	for(int i=0; i<150;i++) { 
 		temp[i+1] = 0x00;
 	}
 
 	//Fill the Lights section
 	//fills with as many lights are existing
-	vector<short> lightValues = sh.getLightValues();
+	vector<short> lightValues = (*sh).getLightValues();
 
 	int lv_size = lightValues.size();
 	cout<<"light values vector SIZE: "<<lv_size<<endl;
 
 	auto iter = lightValues.begin();
     for ( ; iter !=  lightValues.end(); iter++){   
-        temp[251 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
+        temp[151 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
     }
 	//Give the rest 0's
-	for(int i=0; i<(250-lv_size);i++) { //this section is ignored
-		temp[i+251+lv_size] =  0x00;
+	for(int i=0; i<(150-lv_size);i++) { //this section is ignored
+		temp[i+151+lv_size] =  0x00;
 	}
 
-	//cout<<sh.getLight1()<<endl;
-	// temp[250] = (sh.getLight1() ? 0x01 : 0x00);
-	// temp[251] = (sh.getLight1() ? 0x01 : 0x00);
-	// temp[252] = (sh.getLight2() ? 0x01 : 0x00);
-	// temp[253] = (sh.getLight3() ? 0x01 : 0x00);
-	// temp[254] = (sh.getLight4() ? 0x01 : 0x00);
-	// temp[255] = (sh.getLight5() ? 0x01 : 0x00);
-	// temp[256] = (sh.getLight6() ? 0x01 : 0x00);
-	// temp[257] = (sh.getLight7() ? 0x01 : 0x00);
-	// temp[258] = (sh.getLight8() ? 0x01 : 0x00);
-	// temp[259] = (sh.getLight9() ? 0x01 : 0x00);
-	// temp[260] = (sh.getLight10() ? 0x01 : 0x00);
+	//cout<<(*sh).getLight1()<<endl;
+	// temp[250] = ((*sh).getLight1() ? 0x01 : 0x00);
+	// temp[251] = ((*sh).getLight1() ? 0x01 : 0x00);
+	// temp[252] = ((*sh).getLight2() ? 0x01 : 0x00);
+	// temp[253] = ((*sh).getLight3() ? 0x01 : 0x00);
+	// temp[254] = ((*sh).getLight4() ? 0x01 : 0x00);
+	// temp[255] = ((*sh).getLight5() ? 0x01 : 0x00);
+	// temp[256] = ((*sh).getLight6() ? 0x01 : 0x00);
+	// temp[257] = ((*sh).getLight7() ? 0x01 : 0x00);
+	// temp[258] = ((*sh).getLight8() ? 0x01 : 0x00);
+	// temp[259] = ((*sh).getLight9() ? 0x01 : 0x00);
+	// temp[260] = ((*sh).getLight10() ? 0x01 : 0x00);
 
 
 	// for(int i=0; i<240;i++) { //space for later boards
 	// 	temp[i+261] = 0x00;
 	// } 
-	temp[501] = 0xaa;
+	temp[301] = 0xaa;
 
 }
 
 
-void write_bytes(int & serial_port, char (&temp)[502]){
-	write(serial_port, temp, 502);//sizeof(temp));
+void write_bytes(int & serial_port, char (&temp)[302]){
+	write(serial_port, temp, 302);//sizeof(temp));
 }
 
 int usb_port(int & serial_port) {
@@ -448,7 +447,7 @@ int nodeSocket(int & server_fd){
 	return new_socket;
 }
 
-string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler sh, long numJsonSends){
+string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * (*sh), long numJsonSends){
 	int temp=0;
 	//float timer_temp=0.00;
 	
@@ -482,25 +481,25 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler sh, lon
 	}
 
 	//Lights
-	// temp = sh.getLight1();
+	// temp = (*sh).getLight1();
 	// myJson["light1"] = Json::Value::Int(temp);
-	// temp = sh.getLight2();
+	// temp = (*sh).getLight2();
 	// myJson["light2"] = Json::Value::Int(temp);
-	// temp = sh.getLight3();
+	// temp = (*sh).getLight3();
 	// myJson["light3"] = Json::Value::Int(temp);
-	// temp = sh.getLight4();
+	// temp = (*sh).getLight4();
 	// myJson["light4"] = Json::Value::Int(temp);
-	// temp = sh.getLight5();
+	// temp = (*sh).getLight5();
 	// myJson["light5"] = Json::Value::Int(temp);
-	// temp = sh.getLight6();
+	// temp = (*sh).getLight6();
 	// myJson["light6"] = Json::Value::Int(temp);
-	// temp = sh.getLight7();
+	// temp = (*sh).getLight7();
 	// myJson["light7"] = Json::Value::Int(temp);
-	// temp = sh.getLight8();
+	// temp = (*sh).getLight8();
 	// myJson["light8"] = Json::Value::Int(temp);
-	// temp = sh.getLight9();
+	// temp = (*sh).getLight9();
 	// myJson["light9"] = Json::Value::Int(temp);
-	// temp = sh.getLight10();
+	// temp = (*sh).getLight10();
 	// myJson["light10"] = Json::Value::Int(temp);
 
 

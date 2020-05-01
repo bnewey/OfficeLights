@@ -9,6 +9,7 @@
 
 #include <ctime>
 
+using namespace std;
 
 // Fraction class
 class Light {

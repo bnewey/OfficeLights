@@ -14,11 +14,6 @@
 #include <stdlib.h>
 #include <jsoncpp/json/json.h>
 
-//Functions File
-#include "./functions.cpp"
-
-
-
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
 #include <errno.h> // Error integer and strerror() function
@@ -39,7 +34,13 @@
 #include <netinet/in.h> 
 
 #include <mysql/mysql.h>
- 
+
+//forward declaration
+class SwitchHandler;
+//Functions File
+#include "./functions.hpp"
+
+
 #define PORT 8081 //also defined in functions.cpp
 
 
@@ -63,11 +64,11 @@ int main() {
 	memset(&ui_buf, '\0', sizeof(ui_buf));
 
 	//Allocate memory for write_buf command buffer
-	char write_buf[502];
+	char write_buf[302];
 	memset(&write_buf, '\0', sizeof(write_buf));
 
 	//Create vector for our switch values
-	vector<short> switch_vector(250,0);
+	vector<short> switch_vector(150,0);
 
     //Set / read in settings for our Port
 	usb_port(serial_port);
@@ -159,7 +160,7 @@ int main() {
 			(*sh).updateSwitches(switch_vector);			
 
 			// numJsonSends++;
-			// const string tmp2 = createJsonDataString(read_buf, (*sh), numJsonSends);
+			// const string tmp2 = createJsonDataString(read_buf, sh, numJsonSends);
 			// //convert string to char array
 			// char const * stringified_json = tmp2.c_str();
 			// int size = strlen(stringified_json);
@@ -245,7 +246,7 @@ int main() {
 
 			//Have this write section after we recieve potential override commands from UI
 			//Edit write_buf with relay_p pointer to array
-			editWriteBuf(write_buf, (*sh));
+			editWriteBuf(write_buf, sh);
 				
 
 			//Write to Serial Port to Update Relays

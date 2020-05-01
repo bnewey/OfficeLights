@@ -13,54 +13,47 @@
 #include "./switch.hpp"
 
 
-using namespace std;
 
-void Switch::init(int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights){
+void Switch::init(int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights){
     this->id = id; 
     this->array_index = array_i; 
     this->value = value; 
     this->mode = mode;
+    this->type = type;
     this->name = name;
     this->description = desc;
 
     this->lights = lights;
     this->move_timers.push_back( new Timer(1, 1, 0) );
     this->toggle_timers.push_back( new Timer(2, 1, 0));
-    this->delay_timer = new Timer(3,1,0);
+    this->delay_timers.push_back(new Timer(3,1,0));
 }
 
 //Default Constructor
-// Switch::Switch(){
+Switch::Switch(){
 
-//     //start with stop mode 1
+    //start with stop mode 1
 
-//     //(un)provided settings
-//     init(1,251,0,0, "defaultLight", "Default constructor was used", );
+    //(un)provided settings
+    //init(1,251,0,0, "defaultLight", "Default constructor was used", );
 
-//     //
-// }
+    //
+}
 
 // Constructor with int  current_mode passed
-Switch::Switch( int id, int array_i, short value, short mode, string name, string desc, vector<Light *> lights) {
-    init(id, array_i, value, mode, name, desc, lights);  
+Switch::Switch( int id, int array_i, short value, short mode, short type, string name, string desc, vector<Light *> lights) {
+    init(id, array_i, value, mode,type, name, desc, lights);  
 }
 
 //Copy constructor
 Switch::Switch( const Switch &cp)
-    : id(cp.id), array_index(cp.array_index), value(cp.value), mode(cp.mode), name(cp.name), 
-        description(cp.description), lights(cp.lights), move_timers(cp.move_timers), toggle_timers(cp.toggle_timers), delay_timer(cp.delay_timer)
+    : id(cp.id), array_index(cp.array_index), value(cp.value), mode(cp.mode), type(cp.type), name(cp.name), 
+        description(cp.description), lights(cp.lights), move_timers(cp.move_timers), toggle_timers(cp.toggle_timers), delay_timers(cp.delay_timers)
 {}
 
 //Copy Constructor Assignment
 Switch& Switch::operator=(const Switch& cp){
-    if(this != &cp){
-        //IDK if lights destruct should still be here since its in SwitchHandler
-        // auto iter = lights.begin();
-        // for ( ; iter !=  lights.end(); iter++)
-        // {
-        //     delete (*iter);
-        // }
-        // lights.clear();
+    if(this != &cp){    
 
         auto iter2 = move_timers.begin();
         for ( ; iter2 !=  move_timers.end(); iter2++)
@@ -76,9 +69,14 @@ Switch& Switch::operator=(const Switch& cp){
         }
         toggle_timers.clear();
 
-        delete delay_timer;
+        auto iter4 = delay_timers.begin();
+        for ( ; iter4 !=  delay_timers.end(); iter4++)
+        {
+            delete (*iter4);
+        }
+        delay_timers.clear();
 
-        init(cp.id, cp.array_index, cp.value,cp.mode, cp.name, cp.description, cp.lights);
+        init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description, cp.lights);
     }
     return *this;
 }
@@ -86,11 +84,6 @@ Switch& Switch::operator=(const Switch& cp){
 //Deconstructor
 Switch::~Switch(){
     cout<<"Destructing"<<endl;
-    //Delete all lights
-    // auto iter = lights.begin();
-    // for ( ; iter !=  lights.end(); iter++){
-    //     delete (*iter);
-    // }
     //Delete all move_timers
     auto iter2 = move_timers.begin();
     for ( ; iter2 !=  move_timers.end(); iter2++){
@@ -102,43 +95,20 @@ Switch::~Switch(){
         delete (*iter3);
     }
 
-    delete delay_timer;
+    auto iter4 = delay_timers.begin();
+        for ( ; iter4 !=  delay_timers.end(); iter4++)
+        {
+            delete (*iter4);
+        }
+        delay_timers.clear();
 }
 
-void Switch::updateSwitch(short value){
-    if(!checkLightsInit()){
-        return;
-    }
-
-    this->value = value;
-
-    if(value == 1 && mode ==0){
-        this->setMoveTimer(float(900.00));
-        this->setLight(short(1));
-        cout<<"Updating Switch 1 Lights to 1"<<endl;
-    }
-    if(mode == 1 && value == 1){
-        //Reset Toggle Timer if movement
-        this->setToggleTimer(float(900.00));
-    }
-    if(value == 2 && this->delay_timer->getIsTimeUp()){
-        this->mode = 1; //toggle mode
-        //Clear timer and toggle
-        this->setMoveTimer(0.00);
-        this->setToggleTimer(float(15.00));
-        this->toggleLight();
-        this->delay_timer->setTimerValue(float(1.00));
-        cout<<"Updating Switch 1 Lights to TOGGLE"<<endl;
-    }
-
-    
-}
 
 
 void Switch::updateTimer(float seconds_passed){
 
     //Delay Timer update for toggle mode
-    bool isDelayUp = delay_timer->updateTimer(seconds_passed);
+    bool isDelayUp = delay_timers[0]->updateTimer(seconds_passed);
 
     // TOGGLE MODE
     if(this->mode == 1){ 
@@ -195,7 +165,10 @@ void Switch::setToggleTimer(float time_to_set){
 }
 
 void Switch::setDelayTimer(float time_to_set){
-    this->delay_timer->setTimerValue(float(time_to_set));
+    auto iter1 = delay_timers.begin();
+    for ( ; iter1 !=  delay_timers.end(); iter1++){
+        (*iter1)->setTimerValue(float(time_to_set));
+    }
 }
 
 void Switch::setLight(short new_light_value){
@@ -214,30 +187,19 @@ void Switch::toggleLight(){
 
 
 
-
 //getters
-// vector<short> Switch::getLightValuesFromSwitch(){
-//     vector<short> return_vector;
-    
-//     //Iterate switches
-//     auto iter = lights.begin();
-//     for ( ; iter !=  lights.end(); iter++){   
-//         short tmp = (*iter)->getLightValue();
-//         return_vector.push_back( tmp ); 
-//     }
-    
-//     return(return_vector);
-// }
 
 int Switch::getSwitchId(){
     return this->id;
 }
-
 int Switch::getSwitchArrayIndex(){
     return this->array_index;
 }
 short Switch::getSwitchValue(){
     return this->value;
+}
+short Switch::getSwitchType(){
+    return this->type;
 }
 string Switch::getSwitchName(){
     return this->name;
