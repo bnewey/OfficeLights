@@ -71,19 +71,19 @@ void DoubleSwitch::updateSwitch(short value, short value2){
     this->value = value;
 
     if((value == 1 || value2 == 1) && mode ==0){
-        this->setMoveTimer(float(900.00));
+        this->setMoveTimer(float(1800.00));
         this->setLight(short(1));
         cout<<"Updating DoubleSwitch 1 Lights to 1"<<endl;
     }
     if((mode == 1 || value2 == 1)&& value == 1){
         //Reset Toggle Timer if movement
-        this->setToggleTimer(float(900.00));
+        this->setToggleTimer(float(1800.00));
     }
     if(value == 2 && this->delay_timers[0]->getIsTimeUp()){
         this->mode = 1; //toggle mode
         //Clear timer and toggle
         this->setMoveTimer(0.00);
-        this->setToggleTimer(float(900.00));
+        this->setToggleTimer(float(1800.00));
         this->toggleLight();
         this->delay_timers[0]->setTimerValue(float(1.00));
         cout<<"Updating DoubleSwitch 1 Lights to TOGGLE"<<endl;
