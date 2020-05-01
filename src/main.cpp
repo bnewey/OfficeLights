@@ -82,13 +82,13 @@ int main() {
 	vector< vector<string> > switch_variables;
 	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
 		cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
-		return;
+		return 0;
 	}
 
 	vector<vector<string> > light_variables;
 	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
 		cout<<"Query to MySQL did not successfully get light variables"<<endl;
-		return;
+		return 0;
 	}
 
 	//Set Start time for Timers

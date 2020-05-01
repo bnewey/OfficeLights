@@ -263,7 +263,7 @@ int mysqlQueryFixed(MYSQL & mysql, const string sql, vector< vector<string> > & 
 	unsigned int num_fields;
 	MYSQL_ROW row;
 
-	if(mysql_query(&mysql, sql)){ 
+	if(mysql_query(&mysql, sql.c_str())){ 
 		cout<<"MySQL Query Error"<<endl;
 		return 0;
 	}

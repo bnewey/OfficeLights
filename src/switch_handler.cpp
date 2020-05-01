@@ -42,73 +42,46 @@ template<class T> class DeleteVector
 
 
 void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<string>> light_config){
-    if(switch_config.size() > -1 && light_config.size() > -1){
-
-
-        int sw_con_size = switch_config.size();
-        for(int i=0; i<sw_con_size; i++){
-            switches.push_back( new SingleSwitch(switch_config[i][0], switch_config[i][1], 0, 0,0, switch_config[i][3], switch_config[i][4]) );
-        }
-        
-        int light_con_size = light_config.size();
-        for(int i=0; i<light_con_size; i++){
-            lights.push_back( new Light(light_config[i][0], light_config[i][1], light_config[i][2],  0, light_config[i][4], light_config[i][5]) );
-        }
-
-        
-
-        //Lights
-        // vector<Light *> tmpLightVec(2);
-        // tmpLightVec.clear();
-
-        // lights.push_back( new Light(1, 151, 1,  0, "light1", "desc1") );
-        // tmpLightVec.push_back( lights[0] );
-        // switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "switch1", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        // //Double Switch
-        // lights.push_back( new Light(1, 152, 1,  0, "light2", "double switch light") );
-        // tmpLightVec.push_back( lights[1] );
-        // switches.push_back( new DoubleSwitch(2, 1, 0, 0,1, "switch2", "DOUBLESwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-        // //
-
-        // lights.push_back( new Light(1, 153, 1,  0, "light4", "desc4") );
-        // tmpLightVec.push_back( lights[2] );
-        // switches.push_back( new SingleSwitch(3, 3, 0, 0, 0, "switch4", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        // lights.push_back( new Light(1, 154, 1,  0, "light5", "desc5") );
-        // tmpLightVec.push_back( lights[3] );
-        // switches.push_back( new SingleSwitch(4, 4, 0, 0, 0, "switch5", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        // lights.push_back( new Light(1, 155, 1,  0, "light6", "desc6") );
-        // tmpLightVec.push_back( lights[4] );
-        // switches.push_back( new SingleSwitch(5, 5, 0, 0, 0,"switch6", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-        
-        // lights.push_back( new Light(1, 156, 1,  0, "light7", "desc7") );
-        // tmpLightVec.push_back( lights[5] );
-        // switches.push_back( new SingleSwitch(6, 6, 0, 0,0, "switch7", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        // lights.push_back( new Light(1, 157, 1,  0, "light8", "desc8") );
-        // tmpLightVec.push_back( lights[6] );
-        // switches.push_back( new SingleSwitch(7, 7, 0, 0,0, "switch8", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        // lights.push_back( new Light(1, 158, 1,  0, "light9", "desc9") );
-        // tmpLightVec.push_back( lights[7] );
-        // switches.push_back( new SingleSwitch(8, 8, 0, 0,0, "switch9", "SingleSwitch for office next to Ben's", tmpLightVec) );
-        // tmpLightVec.clear();
-
-        //cout<<"SingleSwitch1 made"<<endl;
-
-        
+    if(!(switch_config.size() >= 0 && light_config.size() >= 0)){
+        return;
     }
 
+    //Create SWITCHES using config
+    int sw_con_size = switch_config.size();
+    for(int i=0; i<sw_con_size; i++){
+        //Check mode: 0==single 1==double switch
+        if(stoi(switch_config[i][2]) == 0){
+            switches.push_back( new SingleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );    
+        }
+        else if(stoi(switch_config[i][2]) == 1){
+            switches.push_back( new DoubleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );  
+        }
+    }
+    
+    //Create LIGHTS using config
+    int light_con_size = light_config.size();
+    for(int i=0; i<light_con_size; i++){
+        lights.push_back( new Light(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])) );
+        
+        int light_switch_id = stoi(light_config[i][2]);
+
+        //Add light to its configured switch with switch_id
+        int sw_size = switches.size();
+        for(int i=0; i<sw_size; i++){
+            if(light_switch_id == switches[i]->getSwitchId()){
+                switches[i]->addLightToSwitch(lights[i]);
+            }
+        }
+
+    }
+
+
+    cout<<"Switch Handler done"<<endl;
+
     this->initialized = true;
+
+
+    
 }
 
 //Default Constructor
@@ -150,7 +123,7 @@ SwitchHandler& SwitchHandler::operator=(const SwitchHandler& cp){
         }
         lights.clear();
 
-        init(8);
+        //init(8); //idk how to do this 
     }
     return *this;
 }
@@ -195,8 +168,8 @@ void SwitchHandler::updateSwitches(vector<short> switch_values){
         return;
     }
 
-
-    for(int i=0; i<    8   ; i++){
+    int sw_size = switches.size();
+    for(int i=0; i<    sw_size   ; i++){
         int switch_type = switches[i]->getSwitchType();
         if(switch_type == 0){
             int array_index = switches[i]->getSwitchArrayIndex();
