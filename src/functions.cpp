@@ -148,23 +148,10 @@ void editWriteBuf(char (&temp)[302] , SwitchHandler * sh){
         temp[151 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
     }
 	//Give the rest 0's
+	//Not needed at this point, but it doesnt hurt 
 	for(int i=0; i<(150-lv_size);i++) { //this section is ignored
 		temp[i+151+lv_size] =  0x00;
 	}
-
-	//cout<<(*sh).getLight1()<<endl;
-	// temp[250] = ((*sh).getLight1() ? 0x01 : 0x00);
-	// temp[251] = ((*sh).getLight1() ? 0x01 : 0x00);
-	// temp[252] = ((*sh).getLight2() ? 0x01 : 0x00);
-	// temp[253] = ((*sh).getLight3() ? 0x01 : 0x00);
-	// temp[254] = ((*sh).getLight4() ? 0x01 : 0x00);
-	// temp[255] = ((*sh).getLight5() ? 0x01 : 0x00);
-	// temp[256] = ((*sh).getLight6() ? 0x01 : 0x00);
-	// temp[257] = ((*sh).getLight7() ? 0x01 : 0x00);
-	// temp[258] = ((*sh).getLight8() ? 0x01 : 0x00);
-	// temp[259] = ((*sh).getLight9() ? 0x01 : 0x00);
-	// temp[260] = ((*sh).getLight10() ? 0x01 : 0x00);
-
 
 	// for(int i=0; i<240;i++) { //space for later boards
 	// 	temp[i+261] = 0x00;
@@ -260,7 +247,7 @@ void mysqlConnect(MYSQL & mysql){
 	mysql_init(&mysql);
 	mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"nitrogen");
 	printf("MYSQL INFO: %s\n", mysql_get_client_info());
-	if (!mysql_real_connect(&mysql,"127.0.0.1","root","!Baseball15","db_nitro",0,NULL,0))
+	if (!mysql_real_connect(&mysql,"127.0.0.1","root","!Baseball15","office_lights",0,NULL,0))
 	{
 		fprintf(stderr, "Failed to connect to database: Error: %s\n",
 			mysql_error(&mysql));
@@ -271,67 +258,12 @@ void mysqlConnect(MYSQL & mysql){
 	
 }
 
-int mysqlQuery(MYSQL & mysql, vector<string> & return_array, const char * field_name){
-	//TODO: Are mutliple return point good or bad practice???
-	//TODO: Select machine_table_name instead of *
+
+int mysqlQueryFixed(MYSQL & mysql, const string sql, vector< vector<string> > & return_array){
 	unsigned int num_fields;
 	MYSQL_ROW row;
 
-	if(mysql_query(&mysql, "SELECT * from machines")){ 
-		cout<<"MySQL Query Error"<<endl;
-		return 0;
-	}
-	MYSQL_RES *result  = mysql_store_result(&mysql);
-	if(!result){
-		fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
-		return 0;
-	}
-
-	//Find index of field_name and field_table_name
-	num_fields = mysql_num_fields(result); 
-	MYSQL_FIELD *fields;
-	fields = mysql_fetch_fields(result);
-	
-	unsigned int field_name_index;
-	bool field_name_index_found = false;
-	for(unsigned int i = 0; i < num_fields; i++){
-		if(!(strcmp(fields[i].name , field_name))){
-			field_name_index = i;
-			field_name_index_found = true;
-		}
-	}	
-
-	if(!field_name_index_found){
-		cout<<" Warning on mysql query: Bad field name in mySqlQuery()"<<endl;
-	}
-
-	//Search through rows
-	while ((row = mysql_fetch_row(result)))	{
-		for(unsigned int p = 0; p < num_fields; p++) {	
-			//if field matches our field_name or field_table_name from above, record that cell
-			if(p == field_name_index){
-				string t = row[p];
-				return_array.push_back(t);
-			}
-		}
-	}
-
-	// //Print Vector
-	 for (std::vector<string>::const_iterator i = return_array.begin(); i != return_array.end(); ++i)
-		std::cout << *i << ' ';
-	cout<<endl;
-
-	mysql_free_result(result);
-	return 1;
-	
-	
-}
-
-int mysqlQueryFixed(MYSQL & mysql, vector< vector<string> > & return_array){
-	unsigned int num_fields;
-	MYSQL_ROW row;
-
-	if(mysql_query(&mysql, "SELECT * FROM switch_variables ORDER BY id ASC")){ 
+	if(mysql_query(&mysql, sql.c_str())){ 
 		cout<<"MySQL Query Error"<<endl;
 		return 0;
 	}

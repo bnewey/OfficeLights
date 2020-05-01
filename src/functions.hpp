@@ -35,9 +35,7 @@ int usb_port(int & serial_port) ;
 
 void mysqlConnect(MYSQL & mysql);
 
-int mysqlQuery(MYSQL & mysql, vector<string> & return_array, const char * field_name);
-
-int mysqlQueryFixed(MYSQL & mysql, vector< vector<string> > & return_array);
+int mysqlQueryFixed(MYSQL & mysql, const string, vector< vector<string> > & return_array);
 
 void mysqlCloseConnect(MYSQL &mysql);
 

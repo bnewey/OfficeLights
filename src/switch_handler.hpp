@@ -26,18 +26,18 @@ class SwitchHandler {
   // private: no access from outside
   private:
     //Timers will be added/removed multiple times
-    int test_var;
+    bool initialized;
     vector<Switch *> switches; 
     vector<Light *> lights;
 
-    void init( int );
+    void init( vector<vector<string>>, vector<vector<string>> );
 
   public:
     // default constructor
     SwitchHandler();
 
     // constructor from int (denominator)
-    SwitchHandler( int );
+    SwitchHandler( vector<vector<string>>, vector<vector<string>> );
 
     //Copy Constructor
     SwitchHandler(const SwitchHandler  &cp);

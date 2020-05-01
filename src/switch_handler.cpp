@@ -41,65 +41,47 @@ template<class T> class DeleteVector
 };
 
 
-void SwitchHandler::init(int number_of_switches){
-    if(number_of_switches > 0 && number_of_switches < 151){
-        //Lights
-        vector<Light *> tmpLightVec(2);
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(1, 151, 1,  0, "Bens", "desc1") );
-        tmpLightVec.push_back( lights[0] );
-        switches.push_back( new SingleSwitch(1, 0, 0, 0,0, "Bens", "SingleSwitch for Bens office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(2, 152, 2,  0, "Mikes", "desc2") );
-        tmpLightVec.push_back( lights[1] );
-        switches.push_back( new SingleSwitch(2, 1, 0, 0, 0, "Mikes", "Mikes office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(3, 153, 3,  0, "Frames", "desc3") );
-        tmpLightVec.push_back( lights[2] );
-        switches.push_back( new SingleSwitch(3, 2, 0, 0, 0, "Frames", "Frames office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(4, 154, 4,  0, "Conference", "desc4") );
-        tmpLightVec.push_back( lights[3] );
-        switches.push_back( new SingleSwitch(4, 3, 0, 0, 0,"Conference Room", "Conference Room", tmpLightVec) );
-        tmpLightVec.clear();
-        
-        lights.push_back( new Light(5, 155, 5,  0, "Holding", "desc5") );
-        tmpLightVec.push_back( lights[4] );
-        switches.push_back( new SingleSwitch(5, 4, 0, 0,0, "Holding", "Holding", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(6, 156, 6,  0, "Jeremy", "desc6") );
-        tmpLightVec.push_back( lights[5] );
-        switches.push_back( new SingleSwitch(6, 5, 0, 0,0, "Jeremy Office", "Jeremys office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(7, 157, 7,  0, "Weston", "desc7") );
-        tmpLightVec.push_back( lights[6] );
-        switches.push_back( new SingleSwitch(7, 6, 0, 0,0, "Weston", "Westons office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        lights.push_back( new Light(8, 158, 8,  0, "Joe", "desc8") );
-        tmpLightVec.push_back( lights[7] );
-        switches.push_back( new SingleSwitch(8, 7, 0, 0,0, "Joe", "Joes office", tmpLightVec) );
-        tmpLightVec.clear();
-
-        //Double Switch
-        lights.push_back( new Light(9, 159, 9,  0, "light2", "double switch light9") );
-        tmpLightVec.push_back( lights[8] );
-        switches.push_back( new DoubleSwitch(9, 8, 0, 0,1, "Front/Back Hall", "Front/Back Hall Dbl Switch", tmpLightVec) );
-        tmpLightVec.clear();
-        //
-
-        cout<<"SingleSwitch1 made"<<endl;
-
-        
+void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<string>> light_config){
+    if(!(switch_config.size() >= 0 && light_config.size() >= 0)){
+        return;
     }
 
-    test_var = 1;
+    //Create SWITCHES using config
+    int sw_con_size = switch_config.size();
+    for(int i=0; i<sw_con_size; i++){
+        //Check mode: 0==single 1==double switch
+        if(stoi(switch_config[i][2]) == 0){
+            switches.push_back( new SingleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );    
+        }
+        else if(stoi(switch_config[i][2]) == 1){
+            switches.push_back( new DoubleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );  
+        }
+    }
+    
+    //Create LIGHTS using config
+    int light_con_size = light_config.size();
+    for(int i=0; i<light_con_size; i++){
+        lights.push_back( new Light(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])) );
+        
+        int light_switch_id = stoi(light_config[i][2]);
+
+        //Add light to its configured switch with switch_id
+        int sw_size = switches.size();
+        for(int i=0; i<sw_size; i++){
+            if(light_switch_id == switches[i]->getSwitchId()){
+                switches[i]->addLightToSwitch(lights[i]);
+            }
+        }
+
+    }
+
+
+    cout<<"Switch Handler done"<<endl;
+
+    this->initialized = true;
+
+
+    
 }
 
 //Default Constructor
@@ -113,14 +95,15 @@ SwitchHandler::SwitchHandler(){
 }
 
 // Constructor with int  current_mode passed
-SwitchHandler::SwitchHandler( int number_of_switches){
-    this->init(number_of_switches);
+SwitchHandler::SwitchHandler( vector<vector<string>> switch_config, vector<vector<string>> light_config){
+    this->initialized = false;
+    this->init(switch_config, light_config);
 
 }
 
 //Copy Constructor
 SwitchHandler::SwitchHandler(const SwitchHandler  &cp)
-    : test_var(1), switches(cp.switches), lights(cp.lights)
+    : initialized(cp.initialized), switches(cp.switches), lights(cp.lights)
 {}
 
 //Copy Constructor Assignment
@@ -140,7 +123,7 @@ SwitchHandler& SwitchHandler::operator=(const SwitchHandler& cp){
         }
         lights.clear();
 
-        init(8);
+        //init(8); //idk how to do this 
     }
     return *this;
 }
@@ -180,20 +163,22 @@ void SwitchHandler::updateSwitches(vector<short> switch_values){
     //     int array_index = (*iter)->getSwitchArrayIndex();
     //     (*iter)->updateSwitch(array_index);
     // }
+    if(!(this->initialized == true)){
+        cout<<"Not yet initialized"<<endl;
+        return;
+    }
 
-    for(int i=0; i<    9   ; i++){
+    int sw_size = switches.size();
+    for(int i=0; i<    sw_size   ; i++){
         int switch_type = switches[i]->getSwitchType();
-        int array_index = switches[i]->getSwitchArrayIndex();
         if(switch_type == 0){
-            if(switch_values[array_index] == 1){
-                cout<<"Here"<<endl;
-            }
-            
+            int array_index = switches[i]->getSwitchArrayIndex();
             switches[i]->updateSwitch(switch_values[array_index]);
         }
         //Hacky but works for now
         //works only if double switches are back to back in array_index until i add array_index2 into double_switch
         if(switch_type == 1){
+            int array_index = switches[i]->getSwitchArrayIndex();
             switches[i]->updateSwitch(switch_values[array_index], switch_values[array_index + 1]);
         }        
 
@@ -220,15 +205,21 @@ void SwitchHandler::updateTimers(float seconds_passed){
 
 //getters
 vector<short> SwitchHandler::getLightValues(){
-    vector<short> return_vector;
+    vector<short> return_vector(150,0);
     
-    auto iter = lights.begin();
-    for ( ; iter !=  lights.end(); iter++){   
-        short tmp = (*iter)->getLightValue();
-        cout<<"Light "<<(iter - lights.begin())<<"=="<<tmp<<endl;
-    
-        return_vector.push_back( tmp ); 
+    int l_size = lights.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = (lights[i]->getLightArrayIndex()-151);
+        return_vector[tmp] = lights[i]->getLightValue();
+        if(return_vector[tmp] == 1){
+            cout<<"1"<<endl;
+        }
     }
+    // auto iter = lights.begin();
+    // for ( ; iter !=  lights.end(); iter++){   
+    //     short tmp = (*iter)->getLightValue();
+    //     return_vector.push_back( tmp ); 
+    // }
 
     return return_vector;
 } 
