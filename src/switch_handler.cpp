@@ -209,8 +209,11 @@ vector<short> SwitchHandler::getLightValues(){
     
     int l_size = lights.size();
     for(int i=0; i<(l_size);i++){
-        int tmp = lights[i]->getLightArrayIndex();
+        int tmp = (lights[i]->getLightArrayIndex()-151);
         return_vector[tmp] = lights[i]->getLightValue();
+        if(return_vector[tmp] == 1){
+            cout<<"1"<<endl;
+        }
     }
     // auto iter = lights.begin();
     // for ( ; iter !=  lights.end(); iter++){   

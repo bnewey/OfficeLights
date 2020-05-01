@@ -19,7 +19,7 @@ SingleSwitch::SingleSwitch(){};
 // Constructor with int  current_mode passed
 SingleSwitch::SingleSwitch( int id, int array_i, short value, short mode,short type, string name, string desc)
     : Switch(id, array_i, value,  mode, type,  name, desc ) {
-    init(id, array_i, value, mode, type, name, desc);  
+    //init(id, array_i, value, mode, type, name, desc);  
 }
 
 
