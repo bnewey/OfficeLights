@@ -28,3 +28,8 @@ git branch -d <branch name>
 //if you merge and there are conflicts
 git status //to check what happened
 git mergetool
+
+
+/////////////////////
+// To reset if you mess up
+git reset <commit hash #>   //git log will give hash#'s
