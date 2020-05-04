@@ -150,6 +150,7 @@ bool Switch::checkLightsInit(){
     return true;
 }
 
+//Timers
 void Switch::setMoveTimer(float time_to_set){
     auto iter1 = move_timers.begin();
     for ( ; iter1 !=  move_timers.end(); iter1++){
@@ -171,6 +172,31 @@ void Switch::setDelayTimer(float time_to_set){
     }
 }
 
+vector<float> Switch::getTimerValues(){
+    vector<float> return_vector(3,0);
+    float tmp = move_timers[0]->getTimerValue();
+    if(tmp < 0){
+        tmp =0;
+    }
+    return_vector[0] = float(tmp);
+
+    tmp = toggle_timers[0]->getTimerValue();
+    if(tmp < 0){
+        tmp =0;
+    }
+    return_vector[1] = float(tmp);
+
+    tmp = delay_timers[0]->getTimerValue();
+    if(tmp < 0){
+        tmp =0;
+    }
+    return_vector[2] = float(tmp);
+
+
+    return return_vector;
+}
+
+//Lights
 void Switch::setLight(short new_light_value){
     auto iter1 = lights.begin();
     for ( ; iter1 !=  lights.end(); iter1++){
@@ -204,12 +230,16 @@ short Switch::getSwitchValue(){
 short Switch::getSwitchType(){
     return this->type;
 }
+short Switch::getModeValue(){
+    return this->mode;
+}
 string Switch::getSwitchName(){
     return this->name;
 }
 string Switch::getSwitchDesc(){
     return this->description;
 }
+
 
 //setters
 void Switch::setSwitchId(int id){

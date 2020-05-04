@@ -65,6 +65,7 @@ class Switch {
     void setMoveTimer(float);
     void setToggleTimer(float);
     void setDelayTimer(float);
+    vector<float> getTimerValues();
 
     //Lights
     void setLight(short );
@@ -77,6 +78,7 @@ class Switch {
     int getSwitchArrayIndex();
     short getSwitchValue();
     short getSwitchType(); //0=single 1=double
+    short getModeValue(); //0 =motion 1=toggle
     string getSwitchName();
     string getSwitchDesc();
 

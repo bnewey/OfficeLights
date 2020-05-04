@@ -78,13 +78,14 @@ int main() {
 	mysqlConnect(mysql);
 	
 
-	// //Get switches 
+	// //Get Switch config variables
 	vector< vector<string> > switch_variables;
 	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
 		cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
 		return 0;
 	}
 
+	//Get Light config variables
 	vector<vector<string> > light_variables;
 	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
 		cout<<"Query to MySQL did not successfully get light variables"<<endl;
@@ -94,10 +95,8 @@ int main() {
 	//Set Start time for Timers
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	
-	//SwitchHandler switchHandler(); 
+	//Create SwitchHandler with our config variables
 	SwitchHandler * sh = new SwitchHandler(switch_variables, light_variables);
-
-	//ModeHandler switchHandler;
 
 
 	//numReads: num of reads from port
@@ -140,7 +139,8 @@ int main() {
 			totalReadChars = read_bytes(read_buf, serial_port, numIterations);	
 		}
 
-		if( numIterations > 0 && totalReadChars > 0){ //if something was successfully polled and read from USB, do stuff with this data
+		if( numIterations > 0 && totalReadChars > 0){ 
+			//if something was successfully polled and read from USB, do stuff with this data
 			//cout<<"If poll&read ----"<<"WriteResponse: "<<writeResponse<<"  |  ReadResponse: "<<numIterations<<endl;
 			print_buf(read_buf, numIterations ,totalReadChars);
 			missedReads = 0;
@@ -151,99 +151,96 @@ int main() {
 			t1 = std::chrono::steady_clock::now();
 			(*sh).updateTimers(time_span.count());
 
-			//Take read data and fill our variables for update
-			//getPressuresLH(read_buf, low_pressure, high_pressure, compressor);
-			//short sv1, sv2, sv3, sv4, sv5, sv6, sv7, sv8, sv9, sv10 =0;
-			getDataFromRead(read_buf, switch_vector);
+			//Take read data and fill our switch vector for update
+			getDataFromRead(read_buf, switch_vector);			
+
+			numJsonSends++;
+			const string tmp2 = createJsonDataString(read_buf, sh, numJsonSends);
+			//convert string to char array
+			char const * stringified_json = tmp2.c_str();
+			int size = strlen(stringified_json);
+
+			//make sure client is still connected to socket
+			int stillAlive = readNodeSocket(new_socket, ui_buf);
+
+			//read from node js socket here
+			//sterilize string here
+			//write to port here
+			
+			if(stillAlive > 0){
+				sendNodeSocket(new_socket, stringified_json, size);
+				//cout<<" ------ " << stillAlive<<" ------------" <<endl;
+				if(ui_buf[0]=='0' && ui_buf[1]=='5'){
+					// change to turn all off(*sh).setStop();
+					string light_to_toggle = "";
+					light_to_toggle.push_back(ui_buf[2]);
+					light_to_toggle.push_back(ui_buf[3]);
+					int light_id = stoi(light_to_toggle);
+					// (*sh).toggleLight(light_id);			
+					
+				}
+				if(ui_buf[0]=='0' && ui_buf[1]=='6'){
+					// change to turn all on(*sh).setStart();					
+					
+				}
+				// if(ui_buf[0]=='9' && ui_buf[1]=='9'){
+				// 	//Refetch switch_variables
+				// 	if(!(mysqlQueryFixed(mysql, switch_variables))){
+				// 		cout<<"Query to MySQL did not successfully get switch_variables, default variables applied"<<endl;
+				// 	}
+				// 	//create new object 
+				// 	/*SwitchHandler switchHandlerNew(mode_variables[0][1] == "timer_mode2_wait" ? stof(mode_variables[0][0]) : float(120),
+				// 			mode_variables[1][1] == "timer_mode4_wait" ? stof(mode_variables[1][0]) : float(10),
+				// 			mode_variables[2][1] == "timer_motor_relay" ? stof(mode_variables[2][0]) : float(30),
+				// 			mode_variables[3][1] == "timer_start_relay" ? stof(mode_variables[3][0]) : float(2),
+				// 			mode_variables[4][1] == "timer_stop_relay" ? stof(mode_variables[4][0]) : float(2),
+				// 			mode_variables[5][1] == "timer_shut_down_counter" ? stof(mode_variables[5][0]) : float(30),
+				// 			mode_variables[6][1] == "timer_bleed_relay_m45" ? stof(mode_variables[6][0]) : float(5),
+				// 			mode_variables[7][1] == "timer_bleed_relay_m1" ? stof(mode_variables[7][0]) : float(2),
+				// 			mode_variables[8][1] == "max_high_pressure" ? stoi(mode_variables[8][0]) : 400,
+				// 			mode_variables[9][1] == "high_pressure_thres" ? stoi(mode_variables[9][0]) : 350,
+				// 			mode_variables[10][1] == "max_low_pressure" ? stoi(mode_variables[10][0]) : 94,
+				// 			mode_variables[11][1] == "low_pressure_thres" ? stoi(mode_variables[11][0]) : 86,
+				// 			mode_variables[12][1] == "min_low_pressure" ? stoi(mode_variables[12][0]) : 60,
+				// 			mode_variables[13][1] == "shut_down_counter" ? stoi(mode_variables[13][0]) : 2); 
+				// 	sh =&switchHandlerNew;*/
+				// 	cout<<"Switch Variables Changed"<<endl;
+				// }
+
+				
+
+			}else{
+				//create 'new' socket (should resuse old one) and wait for client to reconnect until timeout
+				cout<<"Client disconnected; Waiting for reconnect."<<endl;
+
+				//(*sh).setStop();
+				cout<<"Hitting the STOP button because we lost control of UI..."<<endl;
+
+				if(new_socket != -1)
+						close(new_socket);
+					if(server_fd != -1)
+						close(server_fd);
+
+					server_fd = -1;
+				new_socket = nodeSocket(server_fd);
+
+				while(new_socket == -1){
+					if(new_socket != -1)
+						close(new_socket);
+					if(server_fd != -1)
+						close(server_fd);
+
+					server_fd = -1;
+					new_socket = nodeSocket(server_fd);
+				
+					cout<<"Check ip addr to make sure IP ADDRESS is correct. New socket:"<<new_socket<<endl;
+				}
+				
+				
+			}
 
 			//Call Update to SwitchHandler Object
-			//PUT THIS AFTER UI COMMAND CHECK
-			(*sh).updateSwitches(switch_vector);			
-
-			// numJsonSends++;
-			// const string tmp2 = createJsonDataString(read_buf, sh, numJsonSends);
-			// //convert string to char array
-			// char const * stringified_json = tmp2.c_str();
-			// int size = strlen(stringified_json);
-
-			// //make sure client is still connected to socket
-			// int stillAlive = readNodeSocket(new_socket, ui_buf);
-
-			// //read from node js socket here
-			// //sterilize string here
-			// //write to port here
-			
-			// if(stillAlive > 0){
-			// 	sendNodeSocket(new_socket, stringified_json, size);
-			// 	//cout<<" ------ " << stillAlive<<" ------------" <<endl;
-			// 	if(ui_buf[0]=='0' && ui_buf[1]=='5'){
-			// 		// change to turn all off(*sh).setStop();
-			// 		string light_to_toggle = "";
-			// 		light_to_toggle.push_back(ui_buf[2]);
-			// 		light_to_toggle.push_back(ui_buf[3]);
-			// 		int light_id = stoi(light_to_toggle);
-			// 		// (*sh).toggleLight(light_id);			
-					
-			// 	}
-			// 	if(ui_buf[0]=='0' && ui_buf[1]=='6'){
-			// 		// change to turn all on(*sh).setStart();					
-					
-			// 	}
-			// 	// if(ui_buf[0]=='9' && ui_buf[1]=='9'){
-			// 	// 	//Refetch switch_variables
-			// 	// 	if(!(mysqlQueryFixed(mysql, switch_variables))){
-			// 	// 		cout<<"Query to MySQL did not successfully get switch_variables, default variables applied"<<endl;
-			// 	// 	}
-			// 	// 	//create new object 
-			// 	// 	/*SwitchHandler switchHandlerNew(mode_variables[0][1] == "timer_mode2_wait" ? stof(mode_variables[0][0]) : float(120),
-			// 	// 			mode_variables[1][1] == "timer_mode4_wait" ? stof(mode_variables[1][0]) : float(10),
-			// 	// 			mode_variables[2][1] == "timer_motor_relay" ? stof(mode_variables[2][0]) : float(30),
-			// 	// 			mode_variables[3][1] == "timer_start_relay" ? stof(mode_variables[3][0]) : float(2),
-			// 	// 			mode_variables[4][1] == "timer_stop_relay" ? stof(mode_variables[4][0]) : float(2),
-			// 	// 			mode_variables[5][1] == "timer_shut_down_counter" ? stof(mode_variables[5][0]) : float(30),
-			// 	// 			mode_variables[6][1] == "timer_bleed_relay_m45" ? stof(mode_variables[6][0]) : float(5),
-			// 	// 			mode_variables[7][1] == "timer_bleed_relay_m1" ? stof(mode_variables[7][0]) : float(2),
-			// 	// 			mode_variables[8][1] == "max_high_pressure" ? stoi(mode_variables[8][0]) : 400,
-			// 	// 			mode_variables[9][1] == "high_pressure_thres" ? stoi(mode_variables[9][0]) : 350,
-			// 	// 			mode_variables[10][1] == "max_low_pressure" ? stoi(mode_variables[10][0]) : 94,
-			// 	// 			mode_variables[11][1] == "low_pressure_thres" ? stoi(mode_variables[11][0]) : 86,
-			// 	// 			mode_variables[12][1] == "min_low_pressure" ? stoi(mode_variables[12][0]) : 60,
-			// 	// 			mode_variables[13][1] == "shut_down_counter" ? stoi(mode_variables[13][0]) : 2); 
-			// 	// 	sh =&switchHandlerNew;*/
-			// 	// 	cout<<"Switch Variables Changed"<<endl;
-			// 	// }
-
-				
-
-			// }else{
-			// 	//create 'new' socket (should resuse old one) and wait for client to reconnect until timeout
-			// 	cout<<"Client disconnected; Waiting for reconnect."<<endl;
-
-			// 	//(*sh).setStop();
-			// 	cout<<"Hitting the STOP button because we lost control of UI..."<<endl;
-
-			// 	if(new_socket != -1)
-			// 			close(new_socket);
-			// 		if(server_fd != -1)
-			// 			close(server_fd);
-
-			// 		server_fd = -1;
-			// 	new_socket = nodeSocket(server_fd);
-
-			// 	while(new_socket == -1){
-			// 		if(new_socket != -1)
-			// 			close(new_socket);
-			// 		if(server_fd != -1)
-			// 			close(server_fd);
-
-			// 		server_fd = -1;
-			// 		new_socket = nodeSocket(server_fd);
-				
-			// 		cout<<"Check ip addr to make sure IP ADDRESS is correct. New socket:"<<new_socket<<endl;
-			// 	}
-				
-				
-			// }
+			(*sh).updateSwitches(switch_vector);
 
 			//Have this write section after we recieve potential override commands from UI
 			//Edit write_buf with relay_p pointer to array

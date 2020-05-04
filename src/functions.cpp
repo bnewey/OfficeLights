@@ -379,7 +379,7 @@ int nodeSocket(int & server_fd){
 	return new_socket;
 }
 
-string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * (*sh), long numJsonSends){
+string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, long numJsonSends){
 	int temp=0;
 	//float timer_temp=0.00;
 	
@@ -389,27 +389,17 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * (*sh)
 	Json::Value myJson = root["lightsData"];
 
 	myJson["id"] = Json::Value::Int(numJsonSends);
-	
-	// loop thru switches 
-	 string data_string_template[10] = {"switch1", "switch2", "switch3","switch4", "switch5", "switch6", "switch7", "switch8", "switch9", "switch10"};
 
-	for(int p= 0;p < 10; p++){
+	vector<short> lightValues = (*sh)->getLightValues();
+	vector<short> modeValues = (*sh)->getModeValues();
+	vector<vector<float>> timerValues = (*sh)->getTimerValues();
+
+	for(int p= 0;p < 150; p++){
 		stringstream ss;
 		ss.clear();
 		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[p+1])); //offset by 5 to get to the relays readbuf[5-11]
 		ss >> temp;
 		myJson[data_string_template[p]] = Json::Value::Int(temp);
-	}
-
-	//loop thru lights
-	string data_light_template[10] = {"light1", "light2", "light3","light4", "light5", "light6", "light7", "light8", "light9", "light10"};
-
-	for(int p= 0;p < 10; p++){
-		stringstream ss;
-		ss.clear();
-		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[p+11])); //offset by 5 to get to the relays readbuf[5-11]
-		ss >> temp;
-		myJson[data_light_template[p]] = Json::Value::Int(temp);
 	}
 
 	//Lights

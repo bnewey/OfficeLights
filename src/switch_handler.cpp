@@ -201,9 +201,8 @@ void SwitchHandler::updateTimers(float seconds_passed){
 } 
 
 
-
-
 //getters
+//Light Getters
 vector<short> SwitchHandler::getLightValues(){
     vector<short> return_vector(150,0);
     
@@ -211,18 +210,38 @@ vector<short> SwitchHandler::getLightValues(){
     for(int i=0; i<(l_size);i++){
         int tmp = (lights[i]->getLightArrayIndex()-151);
         return_vector[tmp] = lights[i]->getLightValue();
-        if(return_vector[tmp] == 1){
-            cout<<"1"<<endl;
-        }
     }
     // auto iter = lights.begin();
     // for ( ; iter !=  lights.end(); iter++){   
     //     short tmp = (*iter)->getLightValue();
     //     return_vector.push_back( tmp ); 
     // }
-
     return return_vector;
 } 
+
+//Switch Getters
+vector<short> SwitchHandler::getModeValues(){
+    vector<short> return_vector(150,0);
+    
+    int l_size = switches.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = (switches[i]->getLightArrayIndex()-151);
+        return_vector[tmp] = switches[i]->getModeValue();
+    }
+    return return_vector;
+} 
+
+vector<vector<float>> SwitchHandler::getTimerValues(){
+    vector<vector<float>> return_vector(150,vector<float>(3));
+    
+    int l_size = switches.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = (switches[i]->getLightArrayIndex()-151);
+        return_vector[tmp] = switches[i]->getTimerValues();
+    }
+    return return_vector;
+} 
+
 
 //setters
 
