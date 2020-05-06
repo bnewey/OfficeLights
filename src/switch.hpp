@@ -86,6 +86,7 @@ class Switch {
     void setSwitchId(int);
     void setSwitchArrayIndex(int);
     void setSwitchValue(short);
+    void setModeValue(short); //0=motion 1=toggle
     void setSwitchName(string);
     void setSwitchDescription(string); 
 

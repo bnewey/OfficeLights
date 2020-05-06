@@ -86,9 +86,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 				ssize_t readChars = read(serial_port, &read_buf[totalNeeded - remaining], remaining);
 				//cout<<"Read Chars: "<<dec<<readChars<<endl;
 				if (!(readChars > 0)){
-					//remove later
-					
-					//return totalRead;
+					return totalRead;
 				}
 				else{
 					//cout<<"readchars: "<<readChars<<endl;
@@ -305,11 +303,11 @@ void mysqlCloseConnect(MYSQL &mysql){
 	mysql_close(&mysql);
 }
 
-int readNodeSocket( int & new_socket, char  (&ui_buf)[4] ){
+int readNodeSocket( int & new_socket, char  (&ui_buf)[5] ){
 	int valread;
 	ui_buf[0] = '\0';
 	//valread = read( new_socket , buffer, 1024);
-	valread = recv( new_socket, ui_buf,4, 0);
+	valread = recv( new_socket, ui_buf,5, 0);
 
     return(valread);
 }
@@ -383,60 +381,72 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, l
 	int temp=0;
 	//float timer_temp=0.00;
 	
-	//int current_mode=0;
-	vector<Json::Value> jsonArray;
+	//Recieve vectors from SwitchHandler
+	vector<short> lightValues = (*sh).getLightValues();
+	vector<short> lightSwitchIdValues = (*sh).getLightSwitchIds();
+	vector<short> modeValues = (*sh).getModeValues();
+	vector<vector<float>> timerValues = (*sh).getTimerValues();
+
+	
+	//LightData - parse into json values into vectors
+	vector<Json::Value> lightJsonVec;
 	Json::Value root;
-	Json::Value myJson = root["lightsData"];
+	Json::Value lightJson = root["lightsData"];
 
-	myJson["id"] = Json::Value::Int(numJsonSends);
+	int l_size = lightValues.size();
 
-	vector<short> lightValues = (*sh)->getLightValues();
-	vector<short> modeValues = (*sh)->getModeValues();
-	vector<vector<float>> timerValues = (*sh)->getTimerValues();
+	for(int p= 0;p < l_size; p++){
+		lightJson["array_index"] = Json::Value::Int(p);
+		lightJson["switch_id"] = Json::Value::Int( int(lightSwitchIdValues[p]) );
+		lightJson["value"] = Json::Value::Int( int(lightValues[p]) );
 
-	for(int p= 0;p < 150; p++){
-		stringstream ss;
-		ss.clear();
-		ss << hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&read_buf[p+1])); //offset by 5 to get to the relays readbuf[5-11]
-		ss >> temp;
-		myJson[data_string_template[p]] = Json::Value::Int(temp);
+		lightJsonVec.push_back(lightJson);
 	}
+	// End of Light Data
 
-	//Lights
-	// temp = (*sh).getLight1();
-	// myJson["light1"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight2();
-	// myJson["light2"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight3();
-	// myJson["light3"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight4();
-	// myJson["light4"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight5();
-	// myJson["light5"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight6();
-	// myJson["light6"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight7();
-	// myJson["light7"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight8();
-	// myJson["light8"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight9();
-	// myJson["light9"] = Json::Value::Int(temp);
-	// temp = (*sh).getLight10();
-	// myJson["light10"] = Json::Value::Int(temp);
+	//SwitchData - parse into json values into vectors
+	vector<Json::Value> switchJsonVec;
+	Json::Value content(Json::arrayValue);
+	Json::Value switchJson = root["switchData"];
 
+	int mv_size = modeValues.size();
+	int tv_size = timerValues.size();
+	if(mv_size != tv_size){
+		cout<<"UH OH modevariables and timer variables are not same size vectors"<<endl;
+	}
+	for(int p= 0;p < mv_size; p++){
+		switchJson["array_index"] = Json::Value::Int(p);
+		switchJson["mode"] = Json::Value::Int( int(modeValues[p]) );
+		switchJson["move_timer"] = Json::Value::Int( int(timerValues[p][0]) );
+		switchJson["toggle_timer"] = Json::Value::Int( int(timerValues[p][1]) );
+		switchJson["delay_timer"] = Json::Value::Int( int(timerValues[p][2]) );
 
-	jsonArray.push_back(myJson);
+		switchJsonVec.push_back(switchJson);
+	}
+	//End of SwitchData
 
+	//Write JSON to string using Json Vectors
 	Json::FastWriter fastWriter;
-	string output = "{ \"lightsData\": ";
-	for(int i=0; i<1; i++){
-		if(i != 0)
-			output += ",";
-		output += fastWriter.write(jsonArray[i]);
+	string output = "{ \"lightsData\": [";
+	
+	for(int i=0;i<l_size; i++){
+		if(i!=0){
+			output+=",";
+		}
+		output += fastWriter.write(lightJsonVec[i]); //lightData
 	}
+	output += "] ,";
+	output += " \"switchData\": [";
+	for(int i=0;i<mv_size; i++){
+		if(i!=0){
+			output+=",";
+		}
+		output += fastWriter.write(switchJsonVec[i]); //switchData
+	}	
+	output += "]";
 	output += " }";
 	
-	cout<<"OUTPUT"<<output<<endl;
+	//cout<<"OUTPUT"<<output<<endl;
 	return(output);
 }
 

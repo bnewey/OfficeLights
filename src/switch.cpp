@@ -260,6 +260,12 @@ void Switch::setSwitchValue(short value){
     }
     this->value = value;
 }
+void Switch::setModeValue(short value){
+    if(value != 0 || value != 1){
+        return;
+    }
+    this->setModeValue(value);
+}
 void Switch::setSwitchName(string name){
     this->name = name;
 }

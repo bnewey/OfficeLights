@@ -54,11 +54,12 @@ class SwitchHandler {
     //Timer 
     void updateTimers(float);
     
-    
+    bool setSwitchToggle(int);
 
     //getters
     //Light getters
     vector<short> getLightValues();
+    vector<short> getLightSwitchIds();
     //Switch getters
     vector<short> getModeValues();
     vector<vector<float>> getTimerValues();

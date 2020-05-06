@@ -200,6 +200,21 @@ void SwitchHandler::updateTimers(float seconds_passed){
     }
 } 
 
+bool SwitchHandler::setSwitchToggle(int idToToggle){
+    //Find switch with id
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++ )
+    {   
+        if((*iter)->getSwitchId() == idToToggle){
+            (*iter)->toggleLight();
+            //Set Mode to 0 because this is coming from UI and shouldnt 
+            (*iter)->setModeValue(0);
+            return true;
+        } 
+    }
+    return false;
+}
+
 
 //getters
 //Light Getters
@@ -219,24 +234,36 @@ vector<short> SwitchHandler::getLightValues(){
     return return_vector;
 } 
 
+vector<short> SwitchHandler::getLightSwitchIds(){
+    vector<short> return_vector(150,0);
+    
+    int l_size = lights.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = (lights[i]->getLightArrayIndex()-151);
+        return_vector[tmp] = lights[i]->getSwitchId();
+    }
+
+    return return_vector;
+}
+
 //Switch Getters
 vector<short> SwitchHandler::getModeValues(){
     vector<short> return_vector(150,0);
     
     int l_size = switches.size();
     for(int i=0; i<(l_size);i++){
-        int tmp = (switches[i]->getLightArrayIndex()-151);
+        int tmp = (switches[i]->getSwitchArrayIndex());
         return_vector[tmp] = switches[i]->getModeValue();
     }
     return return_vector;
-} 
+}
 
 vector<vector<float>> SwitchHandler::getTimerValues(){
     vector<vector<float>> return_vector(150,vector<float>(3));
     
     int l_size = switches.size();
     for(int i=0; i<(l_size);i++){
-        int tmp = (switches[i]->getLightArrayIndex()-151);
+        int tmp = (switches[i]->getSwitchArrayIndex());
         return_vector[tmp] = switches[i]->getTimerValues();
     }
     return return_vector;

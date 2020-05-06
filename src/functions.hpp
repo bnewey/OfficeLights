@@ -39,7 +39,7 @@ int mysqlQueryFixed(MYSQL & mysql, const string, vector< vector<string> > & retu
 
 void mysqlCloseConnect(MYSQL &mysql);
 
-int readNodeSocket( int & new_socket, char  (&ui_buf)[4] );
+int readNodeSocket( int & new_socket, char  (&ui_buf)[5] );
 
 void sendNodeSocket(int & new_socket, char const * data, const unsigned short DATA_SIZE);
 

@@ -60,7 +60,7 @@ int main() {
 	memset(&read_buf, '\0', sizeof(read_buf));
 
 	//Allocate memory for ui_buf buffer
-	char ui_buf[4];
+	char ui_buf[5];
 	memset(&ui_buf, '\0', sizeof(ui_buf));
 
 	//Allocate memory for write_buf command buffer
@@ -152,6 +152,7 @@ int main() {
 			(*sh).updateTimers(time_span.count());
 
 			//Take read data and fill our switch vector for update
+			//switch_vector can be edited from UI commands also
 			getDataFromRead(read_buf, switch_vector);			
 
 			numJsonSends++;
@@ -168,15 +169,22 @@ int main() {
 			//write to port here
 			
 			if(stillAlive > 0){
+				//Send out data to NodeJS
 				sendNodeSocket(new_socket, stringified_json, size);
-				//cout<<" ------ " << stillAlive<<" ------------" <<endl;
+				
 				if(ui_buf[0]=='0' && ui_buf[1]=='5'){
-					// change to turn all off(*sh).setStop();
-					string light_to_toggle = "";
-					light_to_toggle.push_back(ui_buf[2]);
-					light_to_toggle.push_back(ui_buf[3]);
-					int light_id = stoi(light_to_toggle);
-					// (*sh).toggleLight(light_id);			
+					//toggle light
+					string switch_to_toggle = "";
+					switch_to_toggle.push_back(ui_buf[2]);
+					switch_to_toggle.push_back(ui_buf[3]);
+					switch_to_toggle.push_back(ui_buf[4]);
+					int switch_id = stoi(switch_to_toggle);
+					//Edit switch_vector
+					if(!((*sh).setSwitchToggle(switch_id))){
+						cout<<"Error: Did not toggle switch with array_index:"<<switch_id<<endl;
+					}
+					cout<<"Okay"<<endl;
+					
 					
 				}
 				if(ui_buf[0]=='0' && ui_buf[1]=='6'){
@@ -238,7 +246,7 @@ int main() {
 				
 				
 			}
-
+	
 			//Call Update to SwitchHandler Object
 			(*sh).updateSwitches(switch_vector);
 
