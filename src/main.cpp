@@ -115,6 +115,13 @@ int main() {
 			if(serial_port > 0){
 				close(serial_port);
 			}
+
+			///
+			//python test to reset USB 
+			system("python /opt/officelights_git/OfficeLights/reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0");
+			usleep(5000000);
+
+			///
 			
 			if(usb_port(serial_port) > 0){
 				numReads = 0;
@@ -183,7 +190,7 @@ int main() {
 					if(!((*sh).setSwitchToggle(switch_id))){
 						cout<<"Error: Did not toggle switch with array_index:"<<switch_id<<endl;
 					}
-					cout<<"Okay"<<endl;
+					
 					
 					
 				}
