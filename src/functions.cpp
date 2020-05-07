@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 
+
 // Socket header
 #include <netinet/in.h> 
 
@@ -37,7 +38,8 @@
 #include "./functions.hpp"
  
 #define PORT 8081 
-
+//To get current Directory
+#define GetCurrentDir getcwd
 
 using namespace std;
 
@@ -375,6 +377,13 @@ int nodeSocket(int & server_fd){
     } 
 
 	return new_socket;
+}
+
+string GetCurrentWorkingDir( void ) {
+  char buff[FILENAME_MAX];
+  GetCurrentDir( buff, FILENAME_MAX );
+  std::string current_working_dir(buff);
+  return current_working_dir;
 }
 
 string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, long numJsonSends){

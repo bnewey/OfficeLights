@@ -118,7 +118,8 @@ int main() {
 
 			///
 			//python test to reset USB 
-			system("python /opt/officelights_git/OfficeLights/reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0");
+			string command = "python " + GetCurrentWorkingDir() + "/reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0";
+			system(command.c_str());
 			usleep(5000000);
 
 			///
