@@ -247,6 +247,17 @@ vector<short> SwitchHandler::getLightSwitchIds(){
 }
 
 //Switch Getters
+vector<short> SwitchHandler::getSwitchValues(){
+    vector<short> return_vector(150,0);
+    
+    int l_size = switches.size();
+    for(int i=0; i<(l_size);i++){
+        int tmp = (switches[i]->getSwitchArrayIndex());
+        return_vector[tmp] = switches[i]->getSwitchValue();
+    }
+    return return_vector;
+}
+
 vector<short> SwitchHandler::getModeValues(){
     vector<short> return_vector(150,0);
     

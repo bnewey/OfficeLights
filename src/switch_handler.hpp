@@ -61,6 +61,7 @@ class SwitchHandler {
     vector<short> getLightValues();
     vector<short> getLightSwitchIds();
     //Switch getters
+    vector<short> getSwitchValues();
     vector<short> getModeValues();
     vector<vector<float>> getTimerValues();
 

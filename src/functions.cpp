@@ -393,11 +393,13 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, l
 	//Recieve vectors from SwitchHandler
 	vector<short> lightValues = (*sh).getLightValues();
 	vector<short> lightSwitchIdValues = (*sh).getLightSwitchIds();
+	vector<short> switchValues = (*sh).getSwitchValues();
 	vector<short> modeValues = (*sh).getModeValues();
 	vector<vector<float>> timerValues = (*sh).getTimerValues();
 
 	
-	//LightData - parse into json values into vectors
+	//LightData - 
+	//     parse into json values into vectors
 	vector<Json::Value> lightJsonVec;
 	Json::Value root;
 	Json::Value lightJson = root["lightsData"];
@@ -413,7 +415,8 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, l
 	}
 	// End of Light Data
 
-	//SwitchData - parse into json values into vectors
+	//SwitchData - 
+	//     parse into json values into vectors
 	vector<Json::Value> switchJsonVec;
 	Json::Value content(Json::arrayValue);
 	Json::Value switchJson = root["switchData"];
@@ -429,6 +432,7 @@ string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, l
 		switchJson["move_timer"] = Json::Value::Int( int(timerValues[p][0]) );
 		switchJson["toggle_timer"] = Json::Value::Int( int(timerValues[p][1]) );
 		switchJson["delay_timer"] = Json::Value::Int( int(timerValues[p][2]) );
+		switchJson["switch_value"] = Json::Value::Int( int(switchValues[p]));
 
 		switchJsonVec.push_back(switchJson);
 	}
