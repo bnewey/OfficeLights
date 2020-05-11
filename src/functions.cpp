@@ -88,6 +88,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 				ssize_t readChars = read(serial_port, &read_buf[totalNeeded - remaining], remaining);
 				//cout<<"Read Chars: "<<dec<<readChars<<endl;
 				if (!(readChars > 0)){
+					cout<<"RETURN 0 BECAUSE OF BAD READ"<<endl;
 					return totalRead;
 				}
 				else{

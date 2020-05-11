@@ -209,6 +209,7 @@ bool SwitchHandler::setSwitchToggle(int idToToggle){
             (*iter)->toggleLight();
             //Set Mode to 0 because this is coming from UI and shouldnt 
             (*iter)->setModeValue(0);
+            //(*iter)->setMoveTimer(900); //REMOVE THIS
             return true;
         } 
     }
