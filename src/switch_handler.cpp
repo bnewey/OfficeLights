@@ -48,20 +48,26 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
 
     //Create SWITCHES using config
     int sw_con_size = switch_config.size();
+    //Reserve saves time on push_back
+    switches.reserve(150);
+
     for(int i=0; i<sw_con_size; i++){
         //Check mode: 0==single 1==double switch
         if(stoi(switch_config[i][2]) == 0){
-            switches.push_back( new SingleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );    
+            switches.push_back( make_shared<SingleSwitch>(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])));    
         }
         else if(stoi(switch_config[i][2]) == 1){
-            switches.push_back( new DoubleSwitch(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])) );  
+            switches.push_back(make_shared<DoubleSwitch>(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])));  
         }
     }
-    
+
     //Create LIGHTS using config
     int light_con_size = light_config.size();
+    //Reserve saves time on push_back
+    lights.reserve(150);
+
     for(int i=0; i<light_con_size; i++){
-        lights.push_back( new Light(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])) );
+        lights.push_back( make_shared<Light>(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])));
         
         int light_switch_id = stoi(light_config[i][2]);
 
@@ -69,29 +75,21 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
         int sw_size = switches.size();
         for(int i=0; i<sw_size; i++){
             if(light_switch_id == switches[i]->getSwitchId()){
-                switches[i]->addLightToSwitch(lights[i]);
+                switches[i]->addLightToSwitch(weak_ptr<Light>(lights[i]));
             }
         }
-
     }
-
 
     cout<<"Switch Handler done"<<endl;
 
     this->initialized = true;
 
-
-    
 }
 
 //Default Constructor
 SwitchHandler::SwitchHandler(){
 
-    //start with stop mode 1
 
-    //(un)provided settings
-
-    //
 }
 
 // Constructor with int  current_mode passed
@@ -108,47 +106,19 @@ SwitchHandler::SwitchHandler(const SwitchHandler  &cp)
 
 //Copy Constructor Assignment
 SwitchHandler& SwitchHandler::operator=(const SwitchHandler& cp){
-    if(this != &cp){
-        auto iter = switches.begin();
-        for ( ; iter !=  switches.end(); iter++)
-        {
-            delete (*iter);
-        }
-        switches.clear();
-
-        auto iter2 = lights.begin();
-        for ( ; iter2 !=  lights.end(); iter2++)
-        {
-            delete (*iter2);
-        }
-        lights.clear();
-
-        //init(8); //idk how to do this 
-    }
+  
+    //shared pointers dont need to be deallocated now
     return *this;
 }
 
 SwitchHandler::~SwitchHandler(){
-    //~SwitchHandler gets called every loop,which causes our vectors to be deleted during runtime
-    //Delete all switches
-    // auto iter = switches.begin();
-    // for ( ; iter !=  switches.end(); iter++)
-    // {
-    //     delete (*iter);
-    // }
-    // switches.clear();
-    // auto iter2 = lights.begin();
-    // for ( ; iter2 !=  lights.end(); iter2++)
-    // {
-    //     delete (*iter2);
-    // }
-    // lights.clear();
-    
-    for_each( switches.begin(),switches.end(),
-          DeleteVector<Switch*>());
+    //  shared pointers dont need to be deallocated now
 
-    for_each( lights.begin(),lights.end(),
-          DeleteVector<Light*>());
+    //Not sure if this is necessary
+    lights.clear();
+    switches.clear();
+    lights.shrink_to_fit();
+    switches.shrink_to_fit();
 
 }
 
@@ -157,36 +127,26 @@ SwitchHandler::~SwitchHandler(){
 
 void SwitchHandler::updateSwitches(vector<short> switch_values){
     //Update members using params
-    // auto iter = switches.begin();
-    // for ( ; iter !=  switches.end(); iter++)
-    // {
-    //     int array_index = (*iter)->getSwitchArrayIndex();
-    //     (*iter)->updateSwitch(array_index);
-    // }
     if(!(this->initialized == true)){
         cout<<"Not yet initialized"<<endl;
         return;
     }
 
-    int sw_size = switches.size();
-    for(int i=0; i<    sw_size   ; i++){
-        int switch_type = switches[i]->getSwitchType();
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++)
+    {
+        int switch_type = (*iter)->getSwitchType();
         if(switch_type == 0){
-            int array_index = switches[i]->getSwitchArrayIndex();
-            switches[i]->updateSwitch(switch_values[array_index]);
+            int array_index = (*iter)->getSwitchArrayIndex();
+            (*iter)->updateSwitch(switch_values[array_index]);
         }
         //Hacky but works for now
         //works only if double switches are back to back in array_index until i add array_index2 into double_switch
         if(switch_type == 1){
-            int array_index = switches[i]->getSwitchArrayIndex();
-            switches[i]->updateSwitch(switch_values[array_index], switch_values[array_index + 1]);
-        }        
-
+            int array_index = (*iter)->getSwitchArrayIndex();
+            (*iter)->updateSwitch(switch_values[array_index], switch_values[array_index + 1]);
+        }       
     }
-
-
-    
-    //Switch Logic
     
     
 }
@@ -220,24 +180,31 @@ bool SwitchHandler::setSwitchToggle(int idToToggle){
 //getters
 //Light Getters
 vector<short> SwitchHandler::getLightValues(){
-    vector<short> return_vector(150,0);
-    
-    //More efficient to delcare size in vector and read/set data using [ ]
+   //Create and fill return vector
+   //More efficient to delcare size in vector and read/set data using [ ]
     int l_size = lights.size();
-    for(int i=0; i<(l_size);i++){
-        int tmp = (lights[i]->getLightArrayIndex()-151);
-        return_vector[tmp] = lights[i]->getLightValue();
+    vector<short> return_vector(150, 0);
+    
+    auto iter = lights.begin();
+    for ( ; iter !=  lights.end(); iter++)
+    {
+        int tmp = ((*iter)->getLightArrayIndex()-151);
+        return_vector[tmp] = (*iter)->getLightValue();
     }
+
     return return_vector;
 } 
 
-vector<short> SwitchHandler::getLightSwitchIds(){
-    vector<short> return_vector(150,0);
-    
+vector<short> SwitchHandler::getLightSwitchIds(){ 
+    //Create and fill return vector
     int l_size = lights.size();
-    for(int i=0; i<(l_size);i++){
-        int tmp = (lights[i]->getLightArrayIndex()-151);
-        return_vector[tmp] = lights[i]->getSwitchId();
+    vector<short> return_vector(150, 0);
+
+    auto iter = lights.begin();
+    for ( ; iter !=  lights.end(); iter++)
+    {
+        int tmp = ((*iter)->getLightArrayIndex()-151);
+        return_vector[tmp] = (*iter)->getSwitchId();
     }
 
     return return_vector;
@@ -245,9 +212,7 @@ vector<short> SwitchHandler::getLightSwitchIds(){
 
 
 string SwitchHandler::createJsonDataString( long numJsonSends){
-	int temp=0;
-	//float timer_temp=0.00;
-	
+
 	//Recieve vectors from SwitchHandler
 	vector<short> lightValues = this->getLightValues();
 	vector<short> lightSwitchIdValues = this->getLightSwitchIds();
@@ -322,39 +287,46 @@ string SwitchHandler::createJsonDataString( long numJsonSends){
 }
 
 
-
-
 //Switch Getters
 vector<short> SwitchHandler::getSwitchValues(){
-    vector<short> return_vector(150,0);
-    
     int l_size = switches.size();
-    for(int i=0; i<(l_size);i++){
-        int tmp = (switches[i]->getSwitchArrayIndex());
-        return_vector[tmp] = switches[i]->getSwitchValue();
+    vector<short> return_vector(150,0);
+
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++)
+    {
+        int tmp = ((*iter)->getSwitchArrayIndex());
+        return_vector[tmp] = (*iter)->getSwitchValue();
     }
+    
     return return_vector;
 }
 
 vector<short> SwitchHandler::getModeValues(){
-    vector<short> return_vector(150,0);
-    
     int l_size = switches.size();
-    for(int i=0; i<(l_size);i++){
-        int tmp = (switches[i]->getSwitchArrayIndex());
-        return_vector[tmp] = switches[i]->getModeValue();
+    vector<short> return_vector(150,0);
+
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++)
+    {
+        int tmp = ((*iter)->getSwitchArrayIndex());
+        return_vector[tmp] = (*iter)->getModeValue();
     }
+    
     return return_vector;
 }
 
 vector<vector<float>> SwitchHandler::getTimerValues(){
+    int s_size = switches.size();
     vector<vector<float>> return_vector(150,vector<float>(3));
     
-    int l_size = switches.size();
-    for(int i=0; i<(l_size);i++){
-        int tmp = (switches[i]->getSwitchArrayIndex());
-        return_vector[tmp] = switches[i]->getTimerValues();
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++)
+    {
+        int tmp = ((*iter)->getSwitchArrayIndex());
+        return_vector[tmp] = (*iter)->getTimerValues();
     }
+    
     return return_vector;
 } 
 

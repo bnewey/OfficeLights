@@ -24,9 +24,9 @@ void Switch::init(int id, int array_i, short value, short mode, short type, stri
     this->description = desc;
 
     //this->lights = lights;
-    this->move_timers.push_back( new Timer(1, 1, 0) );
-    this->toggle_timers.push_back( new Timer(2, 1, 0));
-    this->delay_timers.push_back(new Timer(3,1,0));
+    this->move_timers.push_back( make_shared<Timer>(1, 1, 0) ) ;
+    this->toggle_timers.push_back( make_shared<Timer>(2, 1, 0) );
+    this->delay_timers.push_back( make_shared<Timer>(3,1,0) );
 }
 
 //Default Constructor
@@ -55,26 +55,27 @@ Switch::Switch( const Switch &cp)
 Switch& Switch::operator=(const Switch& cp){
     if(this != &cp){    
 
-        auto iter2 = move_timers.begin();
-        for ( ; iter2 !=  move_timers.end(); iter2++)
-        {
-            delete (*iter2);
-        }
-        move_timers.clear();
+        //do not need delete with smart pointers now!
+        // auto iter2 = move_timers.begin();
+        // for ( ; iter2 !=  move_timers.end(); iter2++)
+        // {
+        //     delete (*iter2);
+        // }
+        // move_timers.clear();
 
-        auto iter3 = toggle_timers.begin();
-        for ( ; iter3 !=  toggle_timers.end(); iter3++)
-        {
-            delete (*iter3);
-        }
-        toggle_timers.clear();
+        // auto iter3 = toggle_timers.begin();
+        // for ( ; iter3 !=  toggle_timers.end(); iter3++)
+        // {
+        //     delete (*iter3);
+        // }
+        // toggle_timers.clear();
 
-        auto iter4 = delay_timers.begin();
-        for ( ; iter4 !=  delay_timers.end(); iter4++)
-        {
-            delete (*iter4);
-        }
-        delay_timers.clear();
+        // auto iter4 = delay_timers.begin();
+        // for ( ; iter4 !=  delay_timers.end(); iter4++)
+        // {
+        //     delete (*iter4);
+        // }
+        // delay_timers.clear();
 
         init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description);
     }
@@ -84,23 +85,24 @@ Switch& Switch::operator=(const Switch& cp){
 //Deconstructor
 Switch::~Switch(){
     cout<<"Destructing"<<endl;
-    //Delete all move_timers
-    auto iter2 = move_timers.begin();
-    for ( ; iter2 !=  move_timers.end(); iter2++){
-        delete (*iter2);
-    }
-    //Delete all toggle_timers
-    auto iter3 = toggle_timers.begin();
-    for ( ; iter3 !=  toggle_timers.end(); iter3++){
-        delete (*iter3);
-    }
+    //Do not need delete with smart pointers now!
+    // //Delete all move_timers
+    // auto iter2 = move_timers.begin();
+    // for ( ; iter2 !=  move_timers.end(); iter2++){
+    //     delete (*iter2);
+    // }
+    // //Delete all toggle_timers
+    // auto iter3 = toggle_timers.begin();
+    // for ( ; iter3 !=  toggle_timers.end(); iter3++){
+    //     delete (*iter3);
+    // }
 
-    auto iter4 = delay_timers.begin();
-        for ( ; iter4 !=  delay_timers.end(); iter4++)
-        {
-            delete (*iter4);
-        }
-        delay_timers.clear();
+    // auto iter4 = delay_timers.begin();
+    //     for ( ; iter4 !=  delay_timers.end(); iter4++)
+    //     {
+    //         delete (*iter4);
+    //     }
+    //     delay_timers.clear();
 }
 
 
@@ -142,7 +144,8 @@ void Switch::updateTimer(float seconds_passed){
 bool Switch::checkLightsInit(){
     auto iter1 = lights.begin();
     for ( ; iter1 !=  lights.end(); iter1++){
-        if(!((*iter1)->isInitialized())){
+        shared_ptr<Light> light_orig = (*iter1).lock();
+        if(!(light_orig->isInitialized())){
             cout<<"Bad Initialization"<<endl;
             return false;
         }
@@ -200,18 +203,22 @@ vector<float> Switch::getTimerValues(){
 void Switch::setLight(short new_light_value){
     auto iter1 = lights.begin();
     for ( ; iter1 !=  lights.end(); iter1++){
-        (*iter1)->setLightValue(short(new_light_value));
+        //Convert weak to shared to use
+        shared_ptr<Light> light_orig = (*iter1).lock();
+        light_orig->setLightValue(short(new_light_value));
     }
 }
 
 void Switch::toggleLight(){
     auto iter1 = lights.begin();
     for ( ; iter1 !=  lights.end(); iter1++){
-        (*iter1)->setLightValue(!(*iter1)->getLightValue());
+        //Convert weak to shared to use
+        shared_ptr<Light> light_orig = (*iter1).lock();
+        light_orig->setLightValue(!light_orig->getLightValue());
     }
 }
 
-void Switch::addLightToSwitch(Light * lightToAdd){
+void Switch::addLightToSwitch(weak_ptr<Light> lightToAdd){
     this->lights.push_back(lightToAdd);
 }
 

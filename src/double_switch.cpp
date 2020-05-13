@@ -39,22 +39,33 @@ DoubleSwitch& DoubleSwitch::operator=(const DoubleSwitch& cp){
 DoubleSwitch::~DoubleSwitch(){
     cout<<"Destructing"<<endl;
     //Delete all move_timers
-    auto iter2 = move_timers.begin();
-    for ( ; iter2 !=  move_timers.end(); iter2++){
-        delete (*iter2);
-    }
-    //Delete all toggle_timers
-    auto iter3 = toggle_timers.begin();
-    for ( ; iter3 !=  toggle_timers.end(); iter3++){
-        delete (*iter3);
-    }
+    // DO NOT NEED TO DELETE WITH SMART POINTERS!!
+    // auto iter2 = move_timers.begin();
+    // for ( ; iter2 !=  move_timers.end(); iter2++){
+    //     delete (*iter2);
+    // }
+    // //Delete all toggle_timers
+    // auto iter3 = toggle_timers.begin();
+    // for ( ; iter3 !=  toggle_timers.end(); iter3++){
+    //     delete (*iter3);
+    // }
 
-    auto iter4 = delay_timers.begin();
-    for ( ; iter4 !=  delay_timers.end(); iter4++)
-    {
-        delete (*iter4);
-    }
+    // auto iter4 = delay_timers.begin();
+    // for ( ; iter4 !=  delay_timers.end(); iter4++)
+    // {
+    //     delete (*iter4);
+    // }
+
+    //Not sure if this is necessary
+    lights.clear();
+    move_timers.clear();
+    toggle_timers.clear();
     delay_timers.clear();
+
+    lights.shrink_to_fit();
+    move_timers.shrink_to_fit();
+    toggle_timers.shrink_to_fit();
+    delay_timers.shrink_to_fit();
 }
 
 void DoubleSwitch::updateSwitch(short value){

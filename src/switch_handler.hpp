@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <jsoncpp/json/json.h>
+#include <memory>
 // class SingleSwitch;
 // class DoubleSwitch;
 // #include "./switch.hpp"
@@ -27,8 +28,8 @@ class SwitchHandler {
   private:
     //Timers will be added/removed multiple times
     bool initialized;
-    vector<Switch *> switches; 
-    vector<Light *> lights;
+    vector< shared_ptr<Switch> > switches; 
+    vector< shared_ptr<Light> > lights;
 
     void init( vector<vector<string>>, vector<vector<string>> );
 

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <memory>
 
 #include <ctime>
 
@@ -30,10 +31,12 @@ class Switch {
     string name;
     string description;
 
-    vector<Light *> lights;
-    vector<Timer *> move_timers; 
-    vector<Timer *> toggle_timers;  
-    vector<Timer *> delay_timers;
+    //Light is weak_ptr because it lives in switch_handler
+    vector< weak_ptr<Light> > lights;
+    
+    vector< shared_ptr<Timer> > move_timers; 
+    vector< shared_ptr<Timer> > toggle_timers;  
+    vector< shared_ptr<Timer> > delay_timers;
 
     bool checkLightsInit();
 
@@ -70,7 +73,7 @@ class Switch {
     //Lights
     void setLight(short );
     void toggleLight();
-    void addLightToSwitch( Light * );
+    void addLightToSwitch( weak_ptr<Light> );
     
 
     //getters
