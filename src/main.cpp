@@ -41,7 +41,7 @@ class SwitchHandler;
 #include "./functions.hpp"
 
 
-#define PORT 8081 //also defined in functions.cpp
+#define PORT 8081 //also defined in functions.h
 
 
 using namespace std;
@@ -119,9 +119,9 @@ int main() {
 			///
 			//python test to reset USB 
 			string command = "python " + GetCurrentWorkingDir() + "reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0";
+			string command2 = "python "  + GetCurrentWorkingDir() + "reset_usb.py search \"Future Technology Devices International\"";
 			system(command.c_str());
 			usleep(5000000);
-
 			///
 			
 			if(usb_port(serial_port) > 0){
@@ -144,6 +144,8 @@ int main() {
 			}
 				
 		}else{ // if usb not disconnected, poll & read
+			totalReadChars = 0;
+			numIterations = 0;
 			totalReadChars = read_bytes(read_buf, serial_port, numIterations);	
 		}
 
@@ -164,7 +166,7 @@ int main() {
 			getDataFromRead(read_buf, switch_vector);			
 
 			numJsonSends++;
-			const string tmp2 = createJsonDataString(read_buf, sh, numJsonSends);
+			const string tmp2 = (*sh).createJsonDataString( numJsonSends);
 			//convert string to char array
 			char const * stringified_json = tmp2.c_str();
 			int size = strlen(stringified_json);
@@ -226,10 +228,11 @@ int main() {
 				
 
 			}else{
+				//TODO create a new thread that returns with new_socket once UI has reconnected
+
 				//create 'new' socket (should resuse old one) and wait for client to reconnect until timeout
 				cout<<"Client disconnected; Waiting for reconnect."<<endl;
 
-				//(*sh).setStop();
 				cout<<"Hitting the STOP button because we lost control of UI..."<<endl;
 
 				if(new_socket != -1)

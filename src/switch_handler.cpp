@@ -222,16 +222,12 @@ bool SwitchHandler::setSwitchToggle(int idToToggle){
 vector<short> SwitchHandler::getLightValues(){
     vector<short> return_vector(150,0);
     
+    //More efficient to delcare size in vector and read/set data using [ ]
     int l_size = lights.size();
     for(int i=0; i<(l_size);i++){
         int tmp = (lights[i]->getLightArrayIndex()-151);
         return_vector[tmp] = lights[i]->getLightValue();
     }
-    // auto iter = lights.begin();
-    // for ( ; iter !=  lights.end(); iter++){   
-    //     short tmp = (*iter)->getLightValue();
-    //     return_vector.push_back( tmp ); 
-    // }
     return return_vector;
 } 
 
@@ -246,6 +242,87 @@ vector<short> SwitchHandler::getLightSwitchIds(){
 
     return return_vector;
 }
+
+
+string SwitchHandler::createJsonDataString( long numJsonSends){
+	int temp=0;
+	//float timer_temp=0.00;
+	
+	//Recieve vectors from SwitchHandler
+	vector<short> lightValues = this->getLightValues();
+	vector<short> lightSwitchIdValues = this->getLightSwitchIds();
+	vector<short> switchValues = this->getSwitchValues();
+	vector<short> modeValues = this->getModeValues();
+	vector<vector<float>> timerValues = this->getTimerValues();
+
+	
+	//LightData - 
+	//     parse into json values into vectors
+	vector<Json::Value> lightJsonVec;
+	Json::Value root;
+	Json::Value lightJson = root["lightsData"];
+
+	int l_size = lightValues.size();
+
+	for(int p= 0;p < l_size; p++){
+		lightJson["array_index"] = Json::Value::Int(p);
+		lightJson["switch_id"] = Json::Value::Int( int(lightSwitchIdValues[p]) );
+		lightJson["value"] = Json::Value::Int( int(lightValues[p]) );
+
+		lightJsonVec.push_back(lightJson);
+	}
+	// End of Light Data
+
+	//SwitchData - 
+	//     parse into json values into vectors
+	vector<Json::Value> switchJsonVec;
+	Json::Value content(Json::arrayValue);
+	Json::Value switchJson = root["switchData"];
+
+	int mv_size = modeValues.size();
+	int tv_size = timerValues.size();
+	if(mv_size != tv_size){
+		cout<<"UH OH modevariables and timer variables are not same size vectors"<<endl;
+	}
+	for(int p= 0;p < mv_size; p++){
+		switchJson["array_index"] = Json::Value::Int(p);
+		switchJson["mode"] = Json::Value::Int( int(modeValues[p]) );
+		switchJson["move_timer"] = Json::Value::Int( int(timerValues[p][0]) );
+		switchJson["toggle_timer"] = Json::Value::Int( int(timerValues[p][1]) );
+		switchJson["delay_timer"] = Json::Value::Int( int(timerValues[p][2]) );
+		switchJson["switch_value"] = Json::Value::Int( int(switchValues[p]));
+
+		switchJsonVec.push_back(switchJson);
+	}
+	//End of SwitchData
+
+	//Write JSON to string using Json Vectors
+	Json::FastWriter fastWriter;
+	string output = "{ \"lightsData\": [";
+	
+	for(int i=0;i<l_size; i++){
+		if(i!=0){
+			output+=",";
+		}
+		output += fastWriter.write(lightJsonVec[i]); //lightData
+	}
+	output += "] ,";
+	output += " \"switchData\": [";
+	for(int i=0;i<mv_size; i++){
+		if(i!=0){
+			output+=",";
+		}
+		output += fastWriter.write(switchJsonVec[i]); //switchData
+	}	
+	output += "]";
+	output += " }";
+	
+	//cout<<"OUTPUT"<<output<<endl;
+	return(output);
+}
+
+
+
 
 //Switch Getters
 vector<short> SwitchHandler::getSwitchValues(){

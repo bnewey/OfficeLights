@@ -47,8 +47,6 @@ int nodeSocket(int & server_fd);
 
 string GetCurrentWorkingDir( void );
 
-string createJsonDataString(char  (&read_buf)[BUFF_SIZE],  SwitchHandler * sh, long numJsonSends);
-
 string createJsonString(string message);
 
 

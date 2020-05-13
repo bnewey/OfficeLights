@@ -2,7 +2,7 @@
 #define SWITCHHANDLER_HPP
 
 #include <vector>
-
+#include <jsoncpp/json/json.h>
 // class SingleSwitch;
 // class DoubleSwitch;
 // #include "./switch.hpp"
@@ -55,6 +55,9 @@ class SwitchHandler {
     void updateTimers(float);
     
     bool setSwitchToggle(int);
+
+    //Create Json for Ui Send
+    string createJsonDataString(long numJsonSends);
 
     //getters
     //Light getters
