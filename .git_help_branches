@@ -21,8 +21,11 @@ git stash pop
 git checkout master
 git merge <branch name>
 
-//delete that branch after merge
+//delete that branch after merge locally
 git branch -d <branch name>
+
+//delete remotely
+git push origin --delete <branch name>
 
 //Mergetool
 //if you merge and there are conflicts
