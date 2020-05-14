@@ -96,8 +96,7 @@ int main() {
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	
 	//Create SwitchHandler with our config variables
-	SwitchHandler * sh = new SwitchHandler(switch_variables, light_variables);
-
+	shared_ptr<SwitchHandler> sh(make_shared<SwitchHandler>(switch_variables, light_variables));
 
 	//numReads: num of reads from port
 	//n: num of iterations to read exact num of bits | 0 means nothing read this iteration, > 0 means something has been read 
@@ -279,7 +278,6 @@ int main() {
         numReads++;
     }
 
-	delete sh;
 	//Clean up
 	//mysqlCloseConnect(mysql);
 	

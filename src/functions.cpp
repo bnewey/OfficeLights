@@ -128,7 +128,7 @@ void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector
 	}
 }
 
-void editWriteBuf(char (&temp)[302] , SwitchHandler * sh){
+void editWriteBuf(char (&temp)[302] , shared_ptr<SwitchHandler> sh){
 	temp[0] = 0x02;
 
 	//Fill the Switch section
@@ -304,6 +304,7 @@ int mysqlQueryFixed(MYSQL & mysql, const string sql, vector< vector<string> > & 
 
 void mysqlCloseConnect(MYSQL &mysql){
 	mysql_close(&mysql);
+	mysql_library_end();
 }
 
 int readNodeSocket( int & new_socket, char  (&ui_buf)[5] ){
