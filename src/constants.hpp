@@ -12,8 +12,8 @@ const short LIGHTS_MAX_SIZE = 150;
 const float SINGLE_MOVE_TIMER_TIME = 900.00;
 const float SINGLE_TOGGLE_TIMER_TIME = 900.00;
 
-const float DBL_MOVE_TIMER_TIME = 900.00;
-const float DBL_TOGGLE_TIMER_TIME = 900.00;
+const float DBL_MOVE_TIMER_TIME = 1800.00;
+const float DBL_TOGGLE_TIMER_TIME = 1800.00;
 
 
 const float DELAY_TIMER_TIME = 1.00;
