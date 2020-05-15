@@ -53,10 +53,10 @@ void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads){
 	cout <<endl<<endl;
 }
 
-void print_write_buff(char (&write_buf)[302], int numIterations, int numReads){
+void print_write_buff(char (&write_buf)[WRITE_BUFF_SIZE], int numIterations, int numReads){
 	cout<< numReads << ": "<<endl<<"Write iterations: "<< numIterations<<endl;
 
-	for (int i = 0; i < 302; ++i)
+	for (int i = 0; i < WRITE_BUFF_SIZE; ++i)
 		cout <<  hex << setfill('0') << setw(2)  << (int)(*(unsigned char*)(&write_buf[i])) << dec << " ";
 
 	cout <<endl<<endl;
@@ -102,7 +102,7 @@ int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterati
 				cout<<"Read exception caught"<<endl;
 			}	
 		}
-		if(read_buf[0] != 0x02 && read_buf[301] != 0x55){
+		if(read_buf[0] != 0x02 && read_buf[SWITCHES_MAX_SIZE+LIGHTS_MAX_SIZE+1] != 0x55){
 			cout<<"ERROR: BAD INPUT FROM COM PORT"<<endl;
 			//print_buf(read_buf, 1 ,1);
 			return 0;
@@ -117,23 +117,23 @@ void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector
 	if(read_buf[0] != 0x02){
 		return;
 	}
-	//Clear vector, changing size to 0
+	//Clear vector, clear resets vector but not memory, so this is efficient
 	switch_vector.clear();
-	for(int i=0; i<150;i++){
+	for(int i=0; i<SWITCHES_MAX_SIZE;i++){
 		switch_vector.push_back(read_buf[i+1]); //+1 because of 0x02 start char
 	}
 
-	if(switch_vector.size() != 150){
+	if(switch_vector.size() != SWITCHES_MAX_SIZE){
 		cout<<"VECTOR SIZE IS BAD"<<endl;
 	}
 }
 
-void editWriteBuf(char (&temp)[302] , shared_ptr<SwitchHandler> sh){
+void editWriteBuf(char (&temp)[WRITE_BUFF_SIZE] , shared_ptr<SwitchHandler> sh){
 	temp[0] = 0x02;
 
 	//Fill the Switch section
 	//this section is ignored
-	for(int i=0; i<150;i++) { 
+	for(int i=0; i<SWITCHES_MAX_SIZE;i++) { 
 		temp[i+1] = 0x00;
 	}
 
@@ -146,24 +146,21 @@ void editWriteBuf(char (&temp)[302] , shared_ptr<SwitchHandler> sh){
 
 	auto iter = lightValues.begin();
     for ( ; iter !=  lightValues.end(); iter++){   
-        temp[151 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
+        temp[ LIGHTS_MAX_SIZE + 1 + (iter - lightValues.begin())] = ((*iter) ? 0x01 : 0x00);;
     }
 	//Give the rest 0's
 	//Not needed at this point, but it doesnt hurt 
-	for(int i=0; i<(150-lv_size);i++) { //this section is ignored
-		temp[i+151+lv_size] =  0x00;
+	for(int i=0; i<(LIGHTS_MAX_SIZE-lv_size);i++) { //this section is ignored
+		temp[i + LIGHTS_MAX_SIZE + 1 + lv_size] =  0x00;
 	}
 
-	// for(int i=0; i<240;i++) { //space for later boards
-	// 	temp[i+261] = 0x00;
-	// } 
-	temp[301] = 0xaa;
+	temp[SWITCHES_MAX_SIZE + LIGHTS_MAX_SIZE + 1] = 0xaa;
 
 }
 
 
-void write_bytes(int & serial_port, char (&temp)[302]){
-	write(serial_port, temp, 302);//sizeof(temp));
+void write_bytes(int & serial_port, char (&temp)[WRITE_BUFF_SIZE]){
+	write(serial_port, temp, WRITE_BUFF_SIZE);//sizeof(temp));
 }
 
 int usb_port(int & serial_port) {
@@ -307,11 +304,11 @@ void mysqlCloseConnect(MYSQL &mysql){
 	mysql_library_end();
 }
 
-int readNodeSocket( int & new_socket, char  (&ui_buf)[5] ){
+int readNodeSocket( int & new_socket, char  (&ui_buf)[UI_BUFF_SIZE] ){
 	int valread;
 	ui_buf[0] = '\0';
 	//valread = read( new_socket , buffer, 1024);
-	valread = recv( new_socket, ui_buf,5, 0);
+	valread = recv( new_socket, ui_buf,UI_BUFF_SIZE, 0);
 
     return(valread);
 }

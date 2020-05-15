@@ -53,29 +53,7 @@ Switch::Switch( const Switch &cp)
 
 //Copy Constructor Assignment
 Switch& Switch::operator=(const Switch& cp){
-    if(this != &cp){    
-
-        //do not need delete with smart pointers now!
-        // auto iter2 = move_timers.begin();
-        // for ( ; iter2 !=  move_timers.end(); iter2++)
-        // {
-        //     delete (*iter2);
-        // }
-        // move_timers.clear();
-
-        // auto iter3 = toggle_timers.begin();
-        // for ( ; iter3 !=  toggle_timers.end(); iter3++)
-        // {
-        //     delete (*iter3);
-        // }
-        // toggle_timers.clear();
-
-        // auto iter4 = delay_timers.begin();
-        // for ( ; iter4 !=  delay_timers.end(); iter4++)
-        // {
-        //     delete (*iter4);
-        // }
-        // delay_timers.clear();
+    if(this != &cp){   
 
         init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description);
     }
@@ -85,24 +63,7 @@ Switch& Switch::operator=(const Switch& cp){
 //Deconstructor
 Switch::~Switch(){
     cout<<"Destructing"<<endl;
-    //Do not need delete with smart pointers now!
-    // //Delete all move_timers
-    // auto iter2 = move_timers.begin();
-    // for ( ; iter2 !=  move_timers.end(); iter2++){
-    //     delete (*iter2);
-    // }
-    // //Delete all toggle_timers
-    // auto iter3 = toggle_timers.begin();
-    // for ( ; iter3 !=  toggle_timers.end(); iter3++){
-    //     delete (*iter3);
-    // }
 
-    // auto iter4 = delay_timers.begin();
-    //     for ( ; iter4 !=  delay_timers.end(); iter4++)
-    //     {
-    //         delete (*iter4);
-    //     }
-    //     delay_timers.clear();
 }
 
 

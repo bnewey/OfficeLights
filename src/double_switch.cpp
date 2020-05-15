@@ -19,6 +19,7 @@ DoubleSwitch::DoubleSwitch(){};
 // Constructor with params
 DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, short type, string name, string desc)
     : Switch(id, array_i, value,  mode, type, name, desc ) {
+        //if we call init, it runs twice, because of parent class
     //init(id, array_i, value, mode, type, name, desc);  
 }
 
@@ -39,22 +40,6 @@ DoubleSwitch& DoubleSwitch::operator=(const DoubleSwitch& cp){
 DoubleSwitch::~DoubleSwitch(){
     cout<<"Destructing"<<endl;
     //Delete all move_timers
-    // DO NOT NEED TO DELETE WITH SMART POINTERS!!
-    // auto iter2 = move_timers.begin();
-    // for ( ; iter2 !=  move_timers.end(); iter2++){
-    //     delete (*iter2);
-    // }
-    // //Delete all toggle_timers
-    // auto iter3 = toggle_timers.begin();
-    // for ( ; iter3 !=  toggle_timers.end(); iter3++){
-    //     delete (*iter3);
-    // }
-
-    // auto iter4 = delay_timers.begin();
-    // for ( ; iter4 !=  delay_timers.end(); iter4++)
-    // {
-    //     delete (*iter4);
-    // }
 
     //Not sure if this is necessary
     lights.clear();
@@ -82,21 +67,21 @@ void DoubleSwitch::updateSwitch(short value, short value2){
     this->value = value;
 
     if((value == 1 || value2 == 1) && mode ==0){
-        this->setMoveTimer(float(1800.00));
+        this->setMoveTimer(float(DBL_MOVE_TIMER_TIME));
         this->setLight(short(1));
         cout<<"Updating DoubleSwitch 1 Lights to 1"<<endl;
     }
     if((value  == 1 || value2 == 1)&& mode == 1){
         //Reset Toggle Timer if movement
-        this->setToggleTimer(float(1800.00));
+        this->setToggleTimer(float(DBL_TOGGLE_TIMER_TIME));
     }
     if(value == 2 && this->delay_timers[0]->getIsTimeUp()){
         this->mode = 1; //toggle mode
         //Clear timer and toggle
         this->setMoveTimer(0.00);
-        this->setToggleTimer(float(1800.00));
+        this->setToggleTimer(float(DBL_TOGGLE_TIMER_TIME));
         this->toggleLight();
-        this->delay_timers[0]->setTimerValue(float(1.00));
+        this->delay_timers[0]->setTimerValue(float(DELAY_TIMER_TIME));
         cout<<"Updating DoubleSwitch 1 Lights to TOGGLE"<<endl;
     }
 

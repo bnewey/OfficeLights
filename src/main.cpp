@@ -60,15 +60,15 @@ int main() {
 	memset(&read_buf, '\0', sizeof(read_buf));
 
 	//Allocate memory for ui_buf buffer
-	char ui_buf[5];
+	char ui_buf[UI_BUFF_SIZE];
 	memset(&ui_buf, '\0', sizeof(ui_buf));
 
 	//Allocate memory for write_buf command buffer
-	char write_buf[302];
+	char write_buf[WRITE_BUFF_SIZE];
 	memset(&write_buf, '\0', sizeof(write_buf));
 
 	//Create vector for our switch values
-	vector<short> switch_vector(150,0);
+	vector<short> switch_vector(SWITCHES_MAX_SIZE,0);
 
     //Set / read in settings for our Port
 	usb_port(serial_port);

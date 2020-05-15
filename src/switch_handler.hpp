@@ -9,6 +9,7 @@
 // #include "./switch.hpp"
 // #include "./light.hpp"
 
+#include "./constants.hpp"
 #include "./light.hpp"
 #include "./switch.hpp"
 #include "./single_switch.hpp"

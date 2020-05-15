@@ -10,8 +10,10 @@
 
 #include <ctime>
 
+#include "./constants.hpp"
 #include "./light.hpp"
 #include "./timer.hpp"
+
 
 
 using namespace std;

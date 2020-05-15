@@ -49,7 +49,7 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
     //Create SWITCHES using config
     int sw_con_size = switch_config.size();
     //Reserve saves time on push_back
-    switches.reserve(150);
+    switches.reserve(SWITCHES_MAX_SIZE);
 
     for(int i=0; i<sw_con_size; i++){
         //Check mode: 0==single 1==double switch
@@ -64,7 +64,7 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
     //Create LIGHTS using config
     int light_con_size = light_config.size();
     //Reserve saves time on push_back
-    lights.reserve(150);
+    lights.reserve(LIGHTS_MAX_SIZE);
 
     for(int i=0; i<light_con_size; i++){
         lights.push_back( make_shared<Light>(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])));
@@ -169,7 +169,7 @@ bool SwitchHandler::setSwitchToggle(int idToToggle){
             (*iter)->toggleLight();
             //Set Mode to 0 because this is coming from UI and shouldnt 
             (*iter)->setModeValue(0);
-            //(*iter)->setMoveTimer(900); //REMOVE THIS
+            //(*iter)->setMoveTimer(SINGLE_MOVE_TIMER_TIME); //REMOVE THIS
             return true;
         } 
     }
@@ -182,13 +182,12 @@ bool SwitchHandler::setSwitchToggle(int idToToggle){
 vector<short> SwitchHandler::getLightValues(){
    //Create and fill return vector
    //More efficient to delcare size in vector and read/set data using [ ]
-    int l_size = lights.size();
-    vector<short> return_vector(150, 0);
+    vector<short> return_vector(LIGHTS_MAX_SIZE, 0);
     
     auto iter = lights.begin();
     for ( ; iter !=  lights.end(); iter++)
     {
-        int tmp = ((*iter)->getLightArrayIndex()-151);
+        int tmp = ((*iter)->getLightArrayIndex()-(LIGHTS_MAX_SIZE+1));
         return_vector[tmp] = (*iter)->getLightValue();
     }
 
@@ -197,13 +196,12 @@ vector<short> SwitchHandler::getLightValues(){
 
 vector<short> SwitchHandler::getLightSwitchIds(){ 
     //Create and fill return vector
-    int l_size = lights.size();
-    vector<short> return_vector(150, 0);
+    vector<short> return_vector(LIGHTS_MAX_SIZE, 0);
 
     auto iter = lights.begin();
     for ( ; iter !=  lights.end(); iter++)
     {
-        int tmp = ((*iter)->getLightArrayIndex()-151);
+        int tmp = ((*iter)->getLightArrayIndex()-(LIGHTS_MAX_SIZE+1));
         return_vector[tmp] = (*iter)->getSwitchId();
     }
 
@@ -289,8 +287,7 @@ string SwitchHandler::createJsonDataString( long numJsonSends){
 
 //Switch Getters
 vector<short> SwitchHandler::getSwitchValues(){
-    int l_size = switches.size();
-    vector<short> return_vector(150,0);
+    vector<short> return_vector(SWITCHES_MAX_SIZE,0);
 
     auto iter = switches.begin();
     for ( ; iter !=  switches.end(); iter++)
@@ -303,8 +300,7 @@ vector<short> SwitchHandler::getSwitchValues(){
 }
 
 vector<short> SwitchHandler::getModeValues(){
-    int l_size = switches.size();
-    vector<short> return_vector(150,0);
+    vector<short> return_vector(SWITCHES_MAX_SIZE,0);
 
     auto iter = switches.begin();
     for ( ; iter !=  switches.end(); iter++)
@@ -317,8 +313,7 @@ vector<short> SwitchHandler::getModeValues(){
 }
 
 vector<vector<float>> SwitchHandler::getTimerValues(){
-    int s_size = switches.size();
-    vector<vector<float>> return_vector(150,vector<float>(3));
+    vector<vector<float>> return_vector(SWITCHES_MAX_SIZE,vector<float>(3));
     
     auto iter = switches.begin();
     for ( ; iter !=  switches.end(); iter++)
