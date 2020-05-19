@@ -173,6 +173,9 @@ int main() {
 			//make sure client is still connected to socket
 			int stillAlive = readNodeSocket(new_socket, ui_buf);
 
+			//Print UI buff 
+			print_ui_buff(ui_buf);
+
 			//read from node js socket here
 			//sterilize string here
 			//write to port here
@@ -200,29 +203,24 @@ int main() {
 					// change to turn all on(*sh).setStart();					
 					
 				}
-				// if(ui_buf[0]=='9' && ui_buf[1]=='9'){
-				// 	//Refetch switch_variables
-				// 	if(!(mysqlQueryFixed(mysql, switch_variables))){
-				// 		cout<<"Query to MySQL did not successfully get switch_variables, default variables applied"<<endl;
-				// 	}
-				// 	//create new object 
-				// 	/*SwitchHandler switchHandlerNew(mode_variables[0][1] == "timer_mode2_wait" ? stof(mode_variables[0][0]) : float(120),
-				// 			mode_variables[1][1] == "timer_mode4_wait" ? stof(mode_variables[1][0]) : float(10),
-				// 			mode_variables[2][1] == "timer_motor_relay" ? stof(mode_variables[2][0]) : float(30),
-				// 			mode_variables[3][1] == "timer_start_relay" ? stof(mode_variables[3][0]) : float(2),
-				// 			mode_variables[4][1] == "timer_stop_relay" ? stof(mode_variables[4][0]) : float(2),
-				// 			mode_variables[5][1] == "timer_shut_down_counter" ? stof(mode_variables[5][0]) : float(30),
-				// 			mode_variables[6][1] == "timer_bleed_relay_m45" ? stof(mode_variables[6][0]) : float(5),
-				// 			mode_variables[7][1] == "timer_bleed_relay_m1" ? stof(mode_variables[7][0]) : float(2),
-				// 			mode_variables[8][1] == "max_high_pressure" ? stoi(mode_variables[8][0]) : 400,
-				// 			mode_variables[9][1] == "high_pressure_thres" ? stoi(mode_variables[9][0]) : 350,
-				// 			mode_variables[10][1] == "max_low_pressure" ? stoi(mode_variables[10][0]) : 94,
-				// 			mode_variables[11][1] == "low_pressure_thres" ? stoi(mode_variables[11][0]) : 86,
-				// 			mode_variables[12][1] == "min_low_pressure" ? stoi(mode_variables[12][0]) : 60,
-				// 			mode_variables[13][1] == "shut_down_counter" ? stoi(mode_variables[13][0]) : 2); 
-				// 	sh =&switchHandlerNew;*/
-				// 	cout<<"Switch Variables Changed"<<endl;
-				// }
+				if(ui_buf[0]=='9' && ui_buf[1]=='9'){
+					//Refetch switch_variables
+					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
+						cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
+						return 0;
+					}
+
+					//Refetch light variables
+					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
+						cout<<"Query to MySQL did not successfully get light variables"<<endl;
+						return 0;
+					}
+
+
+					//Create SwitchHandler with our config variables
+					shared_ptr<SwitchHandler> sh(make_shared<SwitchHandler>(switch_variables, light_variables));
+					cout<<"Switch Variables Changed"<<endl;
+				}
 
 				
 

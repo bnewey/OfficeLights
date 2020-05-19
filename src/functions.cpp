@@ -62,7 +62,14 @@ void print_write_buff(char (&write_buf)[WRITE_BUFF_SIZE], int numIterations, int
 	cout <<endl<<endl;
 }
 
+void print_ui_buff(char (&ui_buf)[UI_BUFF_SIZE]){
+	cout<<endl<<"UI BUFF: ";
 
+	for (int i = 0; i < UI_BUFF_SIZE; ++i)
+		cout  << ui_buf[i] << " ";
+
+	cout <<endl<<endl;
+}
 
 int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterations) {
 		/* reading above 255 is tricky, we need to read BUFFSIZE bytes exactly, so this ensures it */

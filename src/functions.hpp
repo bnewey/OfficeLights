@@ -23,6 +23,8 @@ void print_buf(char (&read_buf)[BUFF_SIZE], int numIterations, int numReads);
 
 void print_write_buff(char (&write_buf)[WRITE_BUFF_SIZE], int numIterations, int numReads);
 
+void print_ui_buff(char (&ui_buf)[UI_BUFF_SIZE]);
+
 int read_bytes(char  (&read_buf)[BUFF_SIZE],int & serial_port , int & numIterations);
 
 void getDataFromRead(char  (&read_buf)[BUFF_SIZE], vector<short> & switch_vector);
