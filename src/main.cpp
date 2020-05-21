@@ -117,8 +117,8 @@ int main() {
 
 			///
 			//python test to reset USB 
-			string command = "python " + GetCurrentWorkingDir() + "reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0";
-			string command2 = "python "  + GetCurrentWorkingDir() + "reset_usb.py search \"Future Technology Devices International\"";
+			string command = "python " + GetCurrentWorkingDir() + "/reset_usb.py pathpci /sys/bus/pci/drivers/xhci_hcd/0000:00:14.0";
+			string command2 = "python "  + GetCurrentWorkingDir() + "/reset_usb.py search \"Future Technology Devices International\"";
 			system(command.c_str());
 			usleep(5000000);
 			///
@@ -172,7 +172,6 @@ int main() {
 
 			//make sure client is still connected to socket
 			int stillAlive = readNodeSocket(new_socket, ui_buf);
-
 			//Print UI buff 
 			print_ui_buff(ui_buf);
 
@@ -216,9 +215,11 @@ int main() {
 						return 0;
 					}
 
-
+					//Reset will destruct old pointers
+					sh.reset();
 					//Create SwitchHandler with our config variables
-					shared_ptr<SwitchHandler> sh(make_shared<SwitchHandler>(switch_variables, light_variables));
+					shared_ptr<SwitchHandler> sh_tmp(make_shared<SwitchHandler>(switch_variables, light_variables));
+					sh = sh_tmp;
 					cout<<"Switch Variables Changed"<<endl;
 				}
 

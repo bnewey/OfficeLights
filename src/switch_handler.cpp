@@ -102,7 +102,7 @@ SwitchHandler::SwitchHandler( vector<vector<string>> switch_config, vector<vecto
 //Copy Constructor
 SwitchHandler::SwitchHandler(const SwitchHandler  &cp)
     : initialized(cp.initialized), switches(cp.switches), lights(cp.lights)
-{}
+{cout<<"copy const"<<endl;}
 
 //Copy Constructor Assignment
 SwitchHandler& SwitchHandler::operator=(const SwitchHandler& cp){
