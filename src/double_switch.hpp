@@ -30,7 +30,7 @@ class DoubleSwitch : public Switch{
     DoubleSwitch();
 
     // constructor with params
-    DoubleSwitch( int, int, short, short,short,  string, string );
+    DoubleSwitch( int, int, short, short,short,  string, string, float, float);
 
     //Copy constructor
     DoubleSwitch( const DoubleSwitch &cp);

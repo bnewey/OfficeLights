@@ -61,6 +61,9 @@ class SwitchHandler {
     //Create Json for Ui Send
     string createJsonDataString(long numJsonSends);
 
+    vector<string> getMySqlSaveStringSwitches(MYSQL & mysql);
+    vector<string> getMySqlSaveStringLights(MYSQL & mysql);
+
     //getters
     //Light getters
     vector<short> getLightValues();

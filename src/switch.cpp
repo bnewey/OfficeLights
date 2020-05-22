@@ -14,7 +14,7 @@
 
 
 
-void Switch::init(int id, int array_i, short value, short mode, short type, string name, string desc){
+void Switch::init(int id, int array_i, short value, short mode, short type, string name, string desc, float s_toggle_timer, float s_move_timer){
     this->id = id; 
     this->array_index = array_i; 
     this->value = value; 
@@ -25,7 +25,13 @@ void Switch::init(int id, int array_i, short value, short mode, short type, stri
 
     //this->lights = lights;
     this->move_timers.push_back( make_shared<Timer>(1, 1, 0) ) ;
+    if(s_move_timer > 0){
+        this->setMoveTimer(s_move_timer);
+    }
     this->toggle_timers.push_back( make_shared<Timer>(2, 1, 0) );
+    if(s_toggle_timer > 0){
+        this->setToggleTimer(s_toggle_timer);
+    }
     this->delay_timers.push_back( make_shared<Timer>(3,1,0) );
 }
 
@@ -41,8 +47,8 @@ Switch::Switch(){
 }
 
 // Constructor with int  current_mode passed
-Switch::Switch( int id, int array_i, short value, short mode, short type, string name, string desc) {
-    init(id, array_i, value, mode,type, name, desc);  
+Switch::Switch( int id, int array_i, short value, short mode, short type, string name, string desc, float s_toggle_timer, float s_move_timer) {
+    init(id, array_i, value, mode,type, name, desc, s_toggle_timer, s_move_timer);  
 }
 
 //Copy constructor
@@ -55,7 +61,7 @@ Switch::Switch( const Switch &cp)
 Switch& Switch::operator=(const Switch& cp){
     if(this != &cp){   
 
-        init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description);
+        init(cp.id, cp.array_index, cp.value,cp.mode,cp.type, cp.name, cp.description, cp.toggle_timers[0]->getTimerValue(), cp.move_timers[0]->getTimerValue());
     }
     return *this;
 }

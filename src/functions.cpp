@@ -306,6 +306,23 @@ int mysqlQueryFixed(MYSQL & mysql, const string sql, vector< vector<string> > & 
 	
 }
 
+int mysqlQueryNoReturn(MYSQL & mysql, const string sql){
+
+	if(mysql_query(&mysql, sql.c_str())){ 
+		cout<<"MySQL Query Error"<<mysql_error(&mysql)<<endl;
+		return 0;
+	}
+	// MYSQL_RES *result  = mysql_store_result(&mysql);
+	// if(!result){
+	// 	fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
+	// 	return 0;
+	// }
+
+	// mysql_free_result(result);
+	return 1;
+	
+}
+
 void mysqlCloseConnect(MYSQL &mysql){
 	mysql_close(&mysql);
 	mysql_library_end();

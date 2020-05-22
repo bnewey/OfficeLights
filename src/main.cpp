@@ -48,6 +48,8 @@ using namespace std;
 
 //BUFF_SIZE defined in functions.cpp
 
+
+
 int main() {
 	
 	//initialize socket 
@@ -80,20 +82,22 @@ int main() {
 
 	// //Get Switch config variables
 	vector< vector<string> > switch_variables;
-	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
+	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description, toggle_timer, move_timer, mode FROM switches ORDER BY id ASC" , switch_variables))){
 		cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
 		return 0;
 	}
 
 	//Get Light config variables
 	vector<vector<string> > light_variables;
-	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
+	if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, value, name, description  FROM lights ORDER BY id ASC" , light_variables))){
 		cout<<"Query to MySQL did not successfully get light variables"<<endl;
 		return 0;
 	}
 
 	//Set Start time for Timers
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	//Set Start Time for DB update
+	std::chrono::steady_clock::time_point db_timer1 = std::chrono::steady_clock::now();
 	
 	//Create SwitchHandler with our config variables
 	shared_ptr<SwitchHandler> sh(make_shared<SwitchHandler>(switch_variables, light_variables));
@@ -204,13 +208,13 @@ int main() {
 				}
 				if(ui_buf[0]=='9' && ui_buf[1]=='9'){
 					//Refetch switch_variables
-					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description  FROM switches ORDER BY id ASC" , switch_variables))){
+					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, type, name, description, toggle_timer, move_timer, mode FROM switches ORDER BY id ASC" , switch_variables))){
 						cout<<"Query to MySQL did not successfully get switch variables, default variables applied"<<endl;
 						return 0;
 					}
 
 					//Refetch light variables
-					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, type, name, description  FROM lights ORDER BY id ASC" , light_variables))){
+					if(!(mysqlQueryFixed(mysql,"SELECT id, array_index, switch_id, value, name, description  FROM lights ORDER BY id ASC" , light_variables))){
 						cout<<"Query to MySQL did not successfully get light variables"<<endl;
 						return 0;
 					}
@@ -268,6 +272,24 @@ int main() {
 			write_bytes(serial_port, write_buf);
 
 			print_write_buff(write_buf, 3 ,3 );
+
+			//Send Update to DB ever 30 seconds
+			std::chrono::steady_clock::time_point db_timer2 = std::chrono::steady_clock::now();
+			std::chrono::duration<double> db_time_span = std::chrono::duration_cast<std::chrono::duration<double>>(db_timer2 - db_timer1);
+			int tmp = db_time_span.count();
+			cout<<"Time til DB Write"<<tmp<<endl;
+			if( tmp > 30){
+				cout<<"Writing to DB"<<endl;
+				db_timer1 = std::chrono::steady_clock::now();
+				vector<string> sql_strings = (*sh).getMySqlSaveStringLights(mysql);
+				auto iter = sql_strings.begin();
+				for ( ; iter !=  sql_strings.end(); iter++){
+					if(!(mysqlQueryNoReturn(mysql, (*iter)))){
+						cout<<"Error sending light data to DB"<<endl;
+					}
+				}
+				
+			}
 
 			//Reset writeResponse & numIterations
 			numIterations = 0;

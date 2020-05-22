@@ -31,7 +31,7 @@ class SingleSwitch : public Switch{
     SingleSwitch();
 
     // constructor with params
-    SingleSwitch( int, int, short, short,short,  string, string);
+    SingleSwitch( int, int, short, short,short,  string, string, float, float);
 
     //Copy constructor
     SingleSwitch( const SingleSwitch &cp);

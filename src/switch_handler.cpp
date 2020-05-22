@@ -17,6 +17,7 @@
 #include "functional"
 #include "algorithm"
 
+#include <mysql/mysql.h>
 #include <ctime>
 
 #include "./switch_handler.hpp"
@@ -50,14 +51,24 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
     int sw_con_size = switch_config.size();
     //Reserve saves time on push_back
     switches.reserve(SWITCHES_MAX_SIZE);
+   
 
     for(int i=0; i<sw_con_size; i++){
+         //id, array_index, type, name, description, toggle_timer, move_timer, mode
+        int s_id = stoi(switch_config[i][0]); 
+        int s_array_index = stoi(switch_config[i][1]);
+        int s_type = stoi(switch_config[i][2]);
+        string s_name = string(switch_config[i][3]);
+        string s_description = string(switch_config[i][4]);
+        float s_t_timer = stof(switch_config[i][5]);
+        float s_m_timer = stof(switch_config[i][6]);
+        int s_mode = stoi(switch_config[i][7]);
         //Check mode: 0==single 1==double switch
-        if(stoi(switch_config[i][2]) == 0){
-            switches.push_back( make_shared<SingleSwitch>(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])));    
+        if(s_type == 0){
+            switches.push_back( make_shared<SingleSwitch>(s_id, s_array_index, 0, s_mode, s_type, s_name, s_description, s_t_timer, s_m_timer));    
         }
-        else if(stoi(switch_config[i][2]) == 1){
-            switches.push_back(make_shared<DoubleSwitch>(stoi(switch_config[i][0]), stoi(switch_config[i][1]), 0, 0, stoi(switch_config[i][2]), string(switch_config[i][3]), string(switch_config[i][4])));  
+        else if(s_type == 1){
+            switches.push_back(make_shared<DoubleSwitch>(s_id, s_array_index, 0, s_mode, s_type, s_name, s_description, s_t_timer, s_m_timer));  
         }
     }
 
@@ -67,14 +78,20 @@ void SwitchHandler::init( vector<vector<string>> switch_config, vector<vector<st
     lights.reserve(LIGHTS_MAX_SIZE);
 
     for(int i=0; i<light_con_size; i++){
-        lights.push_back( make_shared<Light>(stoi(light_config[i][0]), stoi(light_config[i][1]), stoi(light_config[i][2]),  0, string(light_config[i][4]), string(light_config[i][5])));
-        
-        int light_switch_id = stoi(light_config[i][2]);
+        //id, array_index, switch_id, value, name, description
+        int l_id = stoi(light_config[i][0]);
+        int l_array_index = stoi(light_config[i][1]);
+        int l_switch_id = stoi(light_config[i][2]);
+        int l_value = stoi(light_config[i][3]);
+        string l_name = string(light_config[i][4]);
+        string l_description = string(light_config[i][5]);
+
+        lights.push_back( make_shared<Light>(l_id, l_array_index ,l_switch_id , l_value ,l_name , l_description));
 
         //Add light to its configured switch with switch_id
         int sw_size = switches.size();
         for(int i=0; i<sw_size; i++){
-            if(light_switch_id == switches[i]->getSwitchId()){
+            if(l_switch_id == switches[i]->getSwitchId()){
                 switches[i]->addLightToSwitch(weak_ptr<Light>(lights[i]));
             }
         }
@@ -207,7 +224,30 @@ vector<short> SwitchHandler::getLightSwitchIds(){
 
     return return_vector;
 }
+vector<string> SwitchHandler::getMySqlSaveStringSwitches(MYSQL & mysql){
+    //update toggle_timer, move_timer, mode
+    vector<string> return_vector;
+    return return_vector;
+}
 
+vector<string> SwitchHandler::getMySqlSaveStringLights(MYSQL & mysql){
+    //update value
+    vector<string> return_vector;
+    string sql = "";
+
+    auto iter = lights.begin();
+    for ( ; iter !=  lights.end(); iter++)
+    {
+        sql = "";
+        sql += "UPDATE lights SET value = ";
+        sql += to_string((*iter)->getLightValue());
+        sql += " WHERE id = ";
+        sql += to_string((*iter)->getLightId());
+        return_vector.push_back(sql);
+    }
+
+    return return_vector;
+}
 
 string SwitchHandler::createJsonDataString( long numJsonSends){
 
@@ -283,6 +323,9 @@ string SwitchHandler::createJsonDataString( long numJsonSends){
 	//cout<<"OUTPUT"<<output<<endl;
 	return(output);
 }
+
+
+
 
 
 //Switch Getters

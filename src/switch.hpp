@@ -47,9 +47,9 @@ class Switch {
     Switch();
 
     // constructor with params
-    Switch( int, int, short, short, short,  string, string );
+    Switch( int, int, short, short, short,  string, string, float, float );
 
-    void init(int , int , short, short, short , string , string );
+    void init(int , int , short, short, short , string , string, float, float );
 
     //Copy constructor
     Switch( const Switch &cp);

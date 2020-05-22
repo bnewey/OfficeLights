@@ -17,8 +17,8 @@
 DoubleSwitch::DoubleSwitch(){};
 
 // Constructor with params
-DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, short type, string name, string desc)
-    : Switch(id, array_i, value,  mode, type, name, desc ) {
+DoubleSwitch::DoubleSwitch( int id, int array_i, short value, short mode, short type, string name, string desc, float s_toggle_timer, float s_move_timer )
+    : Switch(id, array_i, value,  mode, type, name, desc, s_toggle_timer, s_move_timer  ) {
         //if we call init, it runs twice, because of parent class
     //init(id, array_i, value, mode, type, name, desc);  
 }

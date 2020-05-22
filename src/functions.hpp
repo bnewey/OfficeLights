@@ -39,6 +39,8 @@ void mysqlConnect(MYSQL & mysql);
 
 int mysqlQueryFixed(MYSQL & mysql, const string, vector< vector<string> > & return_array);
 
+int mysqlQueryNoReturn(MYSQL & mysql, const string);
+
 void mysqlCloseConnect(MYSQL &mysql);
 
 int readNodeSocket( int & new_socket, char  (&ui_buf)[UI_BUFF_SIZE] );
