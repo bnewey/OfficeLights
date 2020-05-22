@@ -30,6 +30,8 @@
 #include <ratio>
 #include <chrono>
 
+#include <pthread.h>
+
 // Socket header
 #include <netinet/in.h> 
 
@@ -47,8 +49,38 @@ class SwitchHandler;
 using namespace std;
 
 //BUFF_SIZE defined in functions.cpp
+struct arg_struct {
+    vector<string> lights_values;
+	vector<string> switch_values;
+	MYSQL mysql;
+};
+struct arg_struct args;
 
+void * sendToDb(void * arguments){
+	struct arg_struct *args1 = (struct arg_struct *)arguments;
 
+	MYSQL mysql = (MYSQL) args1->mysql;
+	vector<string> light_data = args1->lights_values;
+	vector<string> switch_data = args1->switch_values;
+
+	//Lights sql
+	auto iter = light_data.begin();
+	for ( ; iter !=  light_data.end(); iter++){
+		if(!(mysqlQueryNoReturn(mysql, (*iter)))){
+			cout<<"Error sending light data to DB"<<endl;
+		}
+	}
+
+	//Switch sql 
+	auto iter2 = switch_data.begin();
+	for ( ; iter2 !=  switch_data.end(); iter2++){
+		if(!(mysqlQueryNoReturn(mysql, (*iter2)))){
+			cout<<"Error sending light data to DB"<<endl;
+		}
+	}
+
+	return NULL;
+}
 
 int main() {
 	
@@ -276,19 +308,23 @@ int main() {
 			//Send Update to DB ever 30 seconds
 			std::chrono::steady_clock::time_point db_timer2 = std::chrono::steady_clock::now();
 			std::chrono::duration<double> db_time_span = std::chrono::duration_cast<std::chrono::duration<double>>(db_timer2 - db_timer1);
-			int tmp = db_time_span.count();
-			cout<<"Time til DB Write"<<tmp<<endl;
-			if( tmp > 30){
+			
+			if( db_time_span.count() > 30){
+
+				pthread_t db_thread;
+				
+				args.lights_values = (*sh).getMySqlSaveStringLights(mysql);
+				args.switch_values = (*sh).getMySqlSaveStringSwitches(mysql);
+
+				args.mysql = mysql;
+
+				if (pthread_create(&db_thread, NULL, &sendToDb, (void *)&args) != 0) {
+					printf("Uh-oh!\n");
+					return -1;
+				}
 				cout<<"Writing to DB"<<endl;
 				db_timer1 = std::chrono::steady_clock::now();
-				vector<string> sql_strings = (*sh).getMySqlSaveStringLights(mysql);
-				auto iter = sql_strings.begin();
-				for ( ; iter !=  sql_strings.end(); iter++){
-					if(!(mysqlQueryNoReturn(mysql, (*iter)))){
-						cout<<"Error sending light data to DB"<<endl;
-					}
-				}
-				
+				pthread_detach(db_thread);
 			}
 
 			//Reset writeResponse & numIterations

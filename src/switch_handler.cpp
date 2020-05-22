@@ -227,6 +227,23 @@ vector<short> SwitchHandler::getLightSwitchIds(){
 vector<string> SwitchHandler::getMySqlSaveStringSwitches(MYSQL & mysql){
     //update toggle_timer, move_timer, mode
     vector<string> return_vector;
+    string sql = "";
+
+    auto iter = switches.begin();
+    for ( ; iter !=  switches.end(); iter++)
+    {
+        sql = "";
+        sql += "UPDATE switches SET toggle_timer = ";
+        sql += to_string((*iter)->getToggleTimers()[0]);
+        sql += " , move_timer = ";
+        sql += to_string((*iter)->getMoveTimers()[0]);
+        sql += " , mode = ";
+        sql += to_string((*iter)->getModeValue());
+        sql += " WHERE id = ";
+        sql += to_string((*iter)->getSwitchId());
+        return_vector.push_back(sql);
+    }
+
     return return_vector;
 }
 

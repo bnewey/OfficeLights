@@ -86,6 +86,8 @@ class Switch {
     short getModeValue(); //0 =motion 1=toggle
     string getSwitchName();
     string getSwitchDesc();
+    vector<float> getToggleTimers();
+    vector<float> getMoveTimers();
 
     //setters 
     void setSwitchId(int);

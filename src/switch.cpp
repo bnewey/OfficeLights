@@ -214,6 +214,26 @@ string Switch::getSwitchDesc(){
     return this->description;
 }
 
+vector<float> Switch::getToggleTimers(){
+    vector<float> return_vector;
+
+    auto iter = this->toggle_timers.begin();
+    for ( ; iter !=  toggle_timers.end(); iter++){
+        return_vector.push_back((*iter)->getTimerValue());
+    }
+    return return_vector;
+}
+
+vector<float> Switch::getMoveTimers(){
+    vector<float> return_vector;
+
+    auto iter = this->move_timers.begin();
+    for ( ; iter !=  move_timers.end(); iter++){
+        return_vector.push_back((*iter)->getTimerValue());
+    }
+    return return_vector;
+}
+
 
 //setters
 void Switch::setSwitchId(int id){
