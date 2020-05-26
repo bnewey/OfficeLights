@@ -49,6 +49,7 @@ class SwitchHandler;
 using namespace std;
 
 //BUFF_SIZE defined in functions.cpp
+
 struct arg_struct {
     vector<string> lights_values;
 	vector<string> switch_values;
@@ -82,11 +83,64 @@ void * sendToDb(void * arguments){
 	return NULL;
 }
 
+pthread_mutex_t UI_args_mutex =PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t retrying_mutex = PTHREAD_MUTEX_INITIALIZER;
+bool retrying_Ui_reconnect = false;
+
+struct arg_struct_UI {
+    int new_socket;
+	int server_fd;
+};
+struct arg_struct_UI args_UI;
+
+void * reconnectUiInNewThread(void * arguments){
+	struct arg_struct_UI *args1 = (struct arg_struct_UI *)arguments;
+
+	pthread_mutex_lock(&UI_args_mutex);
+	int server_fd = (int) args1->server_fd;
+	int new_socket = (int) args1->new_socket;
+	pthread_mutex_unlock(&UI_args_mutex);
+	
+
+	if(new_socket != -1)
+			close(new_socket);
+		if(server_fd != -1)
+			close(server_fd);
+
+		server_fd = -1;
+	new_socket = nodeSocket(server_fd);
+
+	while(new_socket == -1){
+		if(new_socket != -1)
+			close(new_socket);
+		if(server_fd != -1)
+			close(server_fd);
+
+		server_fd = -1;
+		new_socket = nodeSocket(server_fd);
+	
+		cout<<"Check ip addr to make sure IP ADDRESS is correct. New socket:"<<new_socket<<endl;
+	}
+	
+	//Set our global struct
+	pthread_mutex_lock(&UI_args_mutex);
+	args_UI.server_fd = server_fd;
+	args_UI.new_socket = new_socket;
+	pthread_mutex_unlock(&UI_args_mutex);
+
+	pthread_mutex_lock(&retrying_mutex);
+	retrying_Ui_reconnect = false;
+	pthread_mutex_unlock(&retrying_mutex);
+
+	return NULL;
+}
+
 int main() {
 	
 	//initialize socket 
-	int server_fd;
-	int new_socket = nodeSocket(server_fd);
+	// values are held in struct args_UI above
+	args_UI.new_socket = nodeSocket(args_UI.server_fd);
+	
  	
 	// Allocate memory for read buffer, set size according to your needs
 	int serial_port;
@@ -173,7 +227,9 @@ int main() {
 				string error_json = createJsonString("{error: 1}");
 				char const * stringified_error_json = error_json.c_str();
 				int error_size = strlen(stringified_error_json);
-				sendNodeSocket(new_socket, stringified_error_json , error_size);
+				pthread_mutex_lock(&UI_args_mutex);
+					sendNodeSocket(args_UI.new_socket, stringified_error_json , error_size);
+				pthread_mutex_unlock(&UI_args_mutex);
 				cout<<"Attempting to reconnect to Port in 5 seconds..."<<endl;
 				usleep(5000000);
 			}
@@ -207,7 +263,9 @@ int main() {
 			int size = strlen(stringified_json);
 
 			//make sure client is still connected to socket
-			int stillAlive = readNodeSocket(new_socket, ui_buf);
+			pthread_mutex_lock(&UI_args_mutex);
+			int stillAlive = readNodeSocket(args_UI.new_socket, ui_buf);
+			pthread_mutex_unlock(&UI_args_mutex);
 			//Print UI buff 
 			print_ui_buff(ui_buf);
 
@@ -215,9 +273,11 @@ int main() {
 			//sterilize string here
 			//write to port here
 			
-			if(stillAlive > 0){
+			if(stillAlive > 0 && !retrying_Ui_reconnect){
 				//Send out data to NodeJS
-				sendNodeSocket(new_socket, stringified_json, size);
+				pthread_mutex_lock(&UI_args_mutex);
+				sendNodeSocket(args_UI.new_socket, stringified_json, size);
+				pthread_mutex_unlock(&UI_args_mutex);
 				
 				if(ui_buf[0]=='0' && ui_buf[1]=='5'){
 					//toggle light
@@ -262,34 +322,26 @@ int main() {
 				
 
 			}else{
-				//TODO create a new thread that returns with new_socket once UI has reconnected
-
 				//create 'new' socket (should resuse old one) and wait for client to reconnect until timeout
 				cout<<"Client disconnected; Waiting for reconnect."<<endl;
 
-				cout<<"Hitting the STOP button because we lost control of UI..."<<endl;
+				if(!retrying_Ui_reconnect){
+					cout<<"Trying reconnect in new thread."<<endl;
+					pthread_mutex_lock(&retrying_mutex);
+					retrying_Ui_reconnect = true;
+					pthread_mutex_unlock(&retrying_mutex);
 
-				if(new_socket != -1)
-						close(new_socket);
-					if(server_fd != -1)
-						close(server_fd);
+					//Start new thread to try to connect 
+					pthread_t ui_thread;
 
-					server_fd = -1;
-				new_socket = nodeSocket(server_fd);
-
-				while(new_socket == -1){
-					if(new_socket != -1)
-						close(new_socket);
-					if(server_fd != -1)
-						close(server_fd);
-
-					server_fd = -1;
-					new_socket = nodeSocket(server_fd);
-				
-					cout<<"Check ip addr to make sure IP ADDRESS is correct. New socket:"<<new_socket<<endl;
+					if (pthread_create(&ui_thread, NULL, &reconnectUiInNewThread, (void *)&args_UI) != 0) {
+						printf("Uh-oh! Reconnect UI Thread Failed \n");
+						return -1;
+					}
+					//Detatch, thread will update retrying_Ui_reconnect bool when it finishes
+					pthread_detach(ui_thread);		
+					
 				}
-				
-				
 			}
 	
 			//Call Update to SwitchHandler Object
@@ -309,7 +361,7 @@ int main() {
 			std::chrono::steady_clock::time_point db_timer2 = std::chrono::steady_clock::now();
 			std::chrono::duration<double> db_time_span = std::chrono::duration_cast<std::chrono::duration<double>>(db_timer2 - db_timer1);
 			
-			if( db_time_span.count() > 30){
+			if( db_time_span.count() > 10){
 
 				pthread_t db_thread;
 				
