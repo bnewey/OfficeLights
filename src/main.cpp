@@ -240,7 +240,7 @@ int main() {
 			totalReadChars = read_bytes(read_buf, serial_port, numIterations);	
 		}
 
-		if( numIterations > 0 && totalReadChars > 0){ 
+		if( numIterations > 0 && totalReadChars == BUFF_SIZE){ 
 			//if something was successfully polled and read from USB, do stuff with this data
 			//cout<<"If poll&read ----"<<"WriteResponse: "<<writeResponse<<"  |  ReadResponse: "<<numIterations<<endl;
 			print_buf(read_buf, numIterations ,totalReadChars);
